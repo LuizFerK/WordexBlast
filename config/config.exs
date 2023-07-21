@@ -14,7 +14,7 @@ config :wordex_blast,
 config :wordex_blast, WordexBlastWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [
-    formats: [html: WordexBlastWeb.ErrorHTML, json: WordexBlastWeb.ErrorJSON],
+    formats: [html: WordexBlastWeb.ErrorHTML],
     layout: false
   ],
   pubsub_server: WordexBlast.PubSub,
