@@ -225,8 +225,8 @@ defmodule WordexBlastWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
+        "phx-submit-loading:opacity-75 rounded-lg bg-slate-50 hover:bg-slate-300 py-2 px-3",
+        "text-sm font-semibold leading-6 text-black active:text-black/80",
         @class
       ]}
       {@rest}
@@ -369,8 +369,8 @@ defmodule WordexBlastWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          "mt-2 block w-full rounded-lg text-slate-50 focus:ring-0 sm:text-sm sm:leading-6 border-2",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 bg-transparent",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}

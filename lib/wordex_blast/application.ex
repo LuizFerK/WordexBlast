@@ -14,6 +14,8 @@ defmodule WordexBlast.Application do
       WordexBlast.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: WordexBlast.PubSub},
+      # Start Presence
+      WordexBlastWeb.Presence,
       # Start Finch
       {Finch, name: WordexBlast.Finch},
       # Start the Endpoint (http/https)

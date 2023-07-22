@@ -22,6 +22,7 @@
       <.link href={~p"/"} class="text-[0.8125rem] leading-6 font-semibold hover:text-zinc-700">
         <.icon name="hero-puzzle-piece-solid" class="h-5 w-5" />
       </.link>
+      Room: <%= assigns[:game_code] || "" %>
       <div class="flex gap-4">
         <%= if @current_user do %>
           <li class="text-[0.8125rem] leading-6">
