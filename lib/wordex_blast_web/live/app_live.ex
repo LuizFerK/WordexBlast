@@ -3,13 +3,13 @@ defmodule WordexBlastWeb.AppLive do
 
   def render(assigns) do
     ~H"""
-    <div class="bg-cyan-700 mx-auto max-w-sm">
-    <.simple_form for={@form} id="confirmation_form" phx-submit="enter_game">
-      <.input maxlength="4" style="text-transform:uppercase; text-align:center" autocomplete="off" field={@form[:game_code]} />
-      <:actions>
-        <.button phx-disable-with="Confirming..." class="w-full">Enter game</.button>
-      </:actions>
-    </.simple_form>
+    <div class="mx-auto max-w-sm">
+      <.simple_form for={@form} id="confirmation_form" phx-submit="enter_game">
+        <.input maxlength="4" style="text-transform:uppercase; text-align:center" autocomplete="off" field={@form[:game_code]} />
+        <:actions>
+          <.button phx-disable-with="Confirming..." class="w-full">Enter game</.button>
+        </:actions>
+      </.simple_form>
     </div>
     """
   end
