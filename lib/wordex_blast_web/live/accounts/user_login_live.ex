@@ -1,4 +1,4 @@
-defmodule WordexBlastWeb.UserLoginLive do
+defmodule WordexBlastWeb.Accounts.UserLoginLive do
   use WordexBlastWeb, :live_view
 
   def render(assigns) do

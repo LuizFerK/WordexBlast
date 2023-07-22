@@ -1,4 +1,4 @@
-defmodule WordexBlastWeb.UserConfirmationInstructionsLive do
+defmodule WordexBlastWeb.Accounts.UserConfirmationInstructionsLive do
   use WordexBlastWeb, :live_view
 
   alias WordexBlast.Accounts

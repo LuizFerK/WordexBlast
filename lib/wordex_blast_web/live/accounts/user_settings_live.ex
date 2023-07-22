@@ -1,4 +1,4 @@
-defmodule WordexBlastWeb.UserSettingsLive do
+defmodule WordexBlastWeb.Accounts.UserSettingsLive do
   use WordexBlastWeb, :live_view
 
   alias WordexBlast.Accounts

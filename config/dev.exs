@@ -22,7 +22,7 @@ config :wordex_blast, WordexBlastWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
   code_reloader: true,
-  debug_errors: false,
+  debug_errors: true,
   secret_key_base: "a6jVUN4N8i0qBerUNRggpQJt+1Ki3a5FXD2gTRhFn7tYQLWtqdtLM5piTsvf9r4e",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},

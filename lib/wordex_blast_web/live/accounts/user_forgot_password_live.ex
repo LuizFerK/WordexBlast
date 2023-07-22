@@ -1,4 +1,4 @@
-defmodule WordexBlastWeb.UserForgotPasswordLive do
+defmodule WordexBlastWeb.Accounts.UserForgotPasswordLive do
   use WordexBlastWeb, :live_view
 
   alias WordexBlast.Accounts

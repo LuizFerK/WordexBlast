@@ -31,13 +31,13 @@ defmodule WordexBlastWeb.Router do
       live "/play", AppLive
       live "/play/:game_id", PlayLive
 
-      live "/users/confirm/:token", UserConfirmationLive, :edit
-      live "/users/confirm", UserConfirmationInstructionsLive, :new
+      live "/users/confirm/:token", Accounts.UserConfirmationLive, :edit
+      live "/users/confirm", Accounts.UserConfirmationInstructionsLive, :new
     end
   end
 
   # Authenticated routes
-  scope "/", WordexBlastWeb do
+  scope "/", WordexBlastWeb.Accounts do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
@@ -53,10 +53,10 @@ defmodule WordexBlastWeb.Router do
 
     live_session :redirect_if_user_is_authenticated,
       on_mount: [{WordexBlastWeb.UserAuth, :redirect_if_user_is_authenticated}] do
-      live "/users/register", UserRegistrationLive, :new
-      live "/users/log_in", UserLoginLive, :new
-      live "/users/reset_password", UserForgotPasswordLive, :new
-      live "/users/reset_password/:token", UserResetPasswordLive, :edit
+      live "/users/register", Accounts.UserRegistrationLive, :new
+      live "/users/log_in", Accounts.UserLoginLive, :new
+      live "/users/reset_password", Accounts.UserForgotPasswordLive, :new
+      live "/users/reset_password/:token", Accounts.UserResetPasswordLive, :edit
     end
 
     post "/users/log_in", UserSessionController, :create
