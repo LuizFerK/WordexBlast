@@ -13,17 +13,10 @@ defmodule WordexBlastWeb.Router do
     plug :fetch_current_user
   end
 
-  # Static routes
-  scope "/", WordexBlastWeb do
-    pipe_through :browser
-
-    get "/", HomeController, :home
-  end
-
-  # Live routes
   scope "/", WordexBlastWeb do
     pipe_through [:browser]
 
+    get "/", HomeController, :home
     delete "/users/log_out", UserSessionController, :delete
 
     live_session :current_user,

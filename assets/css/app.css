@@ -2,6 +2,10 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+body {
+  height: 88vh;
+}
+
 .background {
   position: absolute;
   overflow: hidden;

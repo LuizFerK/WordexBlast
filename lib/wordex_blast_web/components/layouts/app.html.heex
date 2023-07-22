@@ -1,3 +1,50 @@
+<nav class="sticky top-0 z-10 m-4 flex items-center px-8 bg-white bg-opacity-5 drop-shadow-lg backdrop-blur-lg h-14 rounded-lg justify-between">
+  <.link navigate={~p"/"} class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700">
+    <.icon name="hero-puzzle-piece-solid" class="h-5 w-5" />
+  </.link>
+  <%= if assigns[:game_code], do: "Room: #{assigns[:game_code]}" %>
+  <ul class="flex gap-4">
+    <%= if @current_user do %>
+      <li class="text-[0.8125rem] leading-6">
+        <%= @current_user.email %>
+      </li>
+      <li>
+        <.link
+          navigate={~p"/users/settings"}
+          class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
+        >
+          Settings
+        </.link>
+      </li>
+      <li>
+        <.link
+          href={~p"/users/log_out"}
+          method="delete"
+          class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
+        >
+          Log out
+        </.link>
+      </li>
+    <% else %>
+      <li>
+        <.link
+          navigate={~p"/users/register"}
+          class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
+        >
+          Register
+        </.link>
+      </li>
+      <li>
+        <.link
+          navigate={~p"/users/log_in"}
+          class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
+        >
+          Log in
+        </.link>
+      </li>
+    <% end %>
+  </ul>
+</nav>
 <main>
   <.flash_group flash={@flash} />
   <%= @inner_content %>
