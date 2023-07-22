@@ -13,7 +13,7 @@ body {
   height: 100%;
   top: 0;
   left: 0;
-  background: linear-gradient(to right, #0f0836, #0f0836);
+  background: #2f0c46;
   display: flex;
   flex-grow: 1;
   z-index: -1;
@@ -28,7 +28,7 @@ body {
 }
 
 .background div:nth-child(1) {
-  background: linear-gradient(132deg, #b31fd1 0.00%, #d11fc2 100.00%);
+  background: #ffa72480;
   width: 30%;
   padding-top: 30%;
   left: 20%;
@@ -37,7 +37,7 @@ body {
 }
 
 .background div:nth-child(2) {
-  background: linear-gradient(132deg, #ae00ff 0.00%, #E32BE3 100.00%);
+  background: #ffa72480;
   width: 100%;
   padding-top: 14%;
   left: 0%;
@@ -46,7 +46,7 @@ body {
 }
 
 .background div:nth-child(3) {
-  background: linear-gradient(132deg, #d11f1f 0.00%, #1F91CF 100.00%);
+  background: #ffa72480;
   width: 51%;
   padding-top: 51%;
   left: 80%;
@@ -55,7 +55,7 @@ body {
 }
 
 .background div:nth-child(4) {
-  background: linear-gradient(132deg, #d531d8 0.00%, #ee6ae9 100.00%);
+  background: #ffa72480;
   width: 31%;
   padding-top: 71%;
   left: 80%;

@@ -189,6 +189,7 @@ defmodule WordexBlastWeb.CoreComponents do
   """
   attr :for, :any, required: true, doc: "the datastructure for the form"
   attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
+  attr :class, :string, default: nil
 
   attr :rest, :global,
     include: ~w(autocomplete name rel action enctype method novalidate target multipart),
@@ -201,6 +202,43 @@ defmodule WordexBlastWeb.CoreComponents do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
       <div class="mt-10 space-y-8">
+        <%= render_slot(@inner_block, f) %>
+        <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
+          <%= render_slot(action, f) %>
+        </div>
+      </div>
+    </.form>
+    """
+  end
+
+  @doc """
+  Renders a flex form.
+
+  ## Examples
+
+      <.flex_form for={@form} phx-change="validate" phx-submit="save">
+        <.input field={@form[:email]} label="Email"/>
+        <.input field={@form[:username]} label="Username" />
+        <:actions>
+          <.button>Save</.button>
+        </:actions>
+      </.flex_form>
+  """
+  attr :for, :any, required: true, doc: "the datastructure for the form"
+  attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
+  attr :class, :string, default: nil
+
+  attr :rest, :global,
+    include: ~w(autocomplete name rel action enctype method novalidate target multipart),
+    doc: "the arbitrary HTML attributes to apply to the form tag"
+
+  slot :inner_block, required: true
+  slot :actions, doc: "the slot for form actions, such as a submit button"
+
+  def flex_form(assigns) do
+    ~H"""
+    <.form :let={f} for={@for} as={@as} {@rest}>
+      <div class="flex mt-4 gap-2 w-full">
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
@@ -268,6 +306,8 @@ defmodule WordexBlastWeb.CoreComponents do
   attr :id, :any, default: nil
   attr :name, :any
   attr :label, :string, default: nil
+  attr :class, :string, default: nil
+  attr :container_class, :string, default: nil
   attr :value, :any
 
   attr :type, :string,
@@ -365,7 +405,7 @@ defmodule WordexBlastWeb.CoreComponents do
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
+    <div phx-feedback-for={@name} class={@container_class}>
       <.label for={@id}><%= @label %></.label>
       <input
         type={@type}
@@ -376,7 +416,8 @@ defmodule WordexBlastWeb.CoreComponents do
           "mt-2 block w-full rounded-lg text-slate-50 focus:ring-0 sm:text-sm sm:leading-6 border-2",
           "phx-no-feedback:border-slate-300 phx-no-feedback:focus:border-slate-400 bg-transparent",
           @errors == [] && "border-slate-300 focus:border-slate-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
+          @errors != [] && "border-rose-400 focus:border-rose-400",
+          @class
         ]}
         {@rest}
       />

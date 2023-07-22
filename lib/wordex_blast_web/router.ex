@@ -21,7 +21,7 @@ defmodule WordexBlastWeb.Router do
 
     live_session :current_user,
       on_mount: [{WordexBlastWeb.UserAuth, :mount_current_user}] do
-      live "/play", AppLive
+      live "/app", AppLive
       live "/play/:game_code", PlayLive
 
       live "/users/confirm/:token", Accounts.UserConfirmationLive, :edit
