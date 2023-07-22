@@ -13,16 +13,30 @@ defmodule WordexBlastWeb.Router do
     plug :fetch_current_user
   end
 
-  ## Static routes
-
+  # Static routes
   scope "/", WordexBlastWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", HomeController, :home
   end
 
-  ## Live routes
+  # Live routes
+  scope "/", WordexBlastWeb do
+    pipe_through [:browser]
 
+    delete "/users/log_out", UserSessionController, :delete
+
+    live_session :current_user,
+      on_mount: [{WordexBlastWeb.UserAuth, :mount_current_user}] do
+      live "/play", AppLive
+      live "/play/:game_id", PlayLive
+
+      live "/users/confirm/:token", UserConfirmationLive, :edit
+      live "/users/confirm", UserConfirmationInstructionsLive, :new
+    end
+  end
+
+  # Authenticated routes
   scope "/", WordexBlastWeb do
     pipe_through [:browser, :require_authenticated_user]
 
@@ -33,8 +47,7 @@ defmodule WordexBlastWeb.Router do
     end
   end
 
-  ## Authentication routes
-
+  # Authentication routes
   scope "/", WordexBlastWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
@@ -49,20 +62,7 @@ defmodule WordexBlastWeb.Router do
     post "/users/log_in", UserSessionController, :create
   end
 
-  scope "/", WordexBlastWeb do
-    pipe_through [:browser]
-
-    delete "/users/log_out", UserSessionController, :delete
-
-    live_session :current_user,
-      on_mount: [{WordexBlastWeb.UserAuth, :mount_current_user}] do
-      live "/users/confirm/:token", UserConfirmationLive, :edit
-      live "/users/confirm", UserConfirmationInstructionsLive, :new
-    end
-  end
-
   # Dev routes
-
   if Application.compile_env(:wordex_blast, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put
     # it behind authentication and allow only admins to access it.

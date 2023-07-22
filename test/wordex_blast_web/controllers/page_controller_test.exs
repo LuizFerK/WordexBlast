@@ -1,4 +1,4 @@
-defmodule WordexBlastWeb.PageControllerTest do
+defmodule WordexBlastWeb.HomeControllerTest do
   use WordexBlastWeb.ConnCase
 
   test "GET /", %{conn: conn} do
