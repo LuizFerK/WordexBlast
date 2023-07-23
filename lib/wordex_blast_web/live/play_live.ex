@@ -7,21 +7,55 @@ defmodule WordexBlastWeb.PlayLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm flex flex-col">
-      <li :for={{_user_id, meta} <- @presences}>
-        <span>
-          <%= meta.username %>
-        </span>
-      </li>
-      <div class="flex-1">
+    <div class="mx-auto max-w-5xl flex flex-col items-center">
+      <ul class="h-[75vh] flex gap-8 items-center">
+        <.user :for={{_user_id, meta} <- @presences} username={meta.username} />
+      </ul>
+      <.flex_form for={@form} id="confirmation_form" phx-submit="enter_game">
         <.input
-          name="word"
-          value=""
           style="text-transform:uppercase; text-align:center"
           autocomplete="off"
+          field={@form[:input]}
+          placeholder="TYPE! QUICK!"
+          class="!mt-0 font-bold border-none bg-white bg-opacity-5"
+          container_class="flex-1 w-96"
         />
-      </div>
+        <.button phx-disable-with="Confirming...">
+          <.icon name="hero-arrow-right-solid" />
+        </.button>
+      </.flex_form>
     </div>
+    <.modal id="setup-user" class="max-w-xl" show>
+      <h1 class="font-bold text-xl mb-4">Welcome to Wordex Blaster!</h1>
+      <p>To start playing, let's setup your account.</p>
+      <div class="w-full">
+        <.simple_form for={@form} id="confirmation_form" phx-submit="enter_game">
+          <.label>Avatar:</.label>
+          <.input
+            label="Nickname:"
+            maxlength="4"
+            autocomplete="off"
+            field={@form[:input]}
+            placeholder="My awesome nickname"
+            class="font-bold text-center"
+            container_class="mt-0"
+          />
+          <:actions>
+            <.button class="w-full" phx-disable-with="Confirming...">
+              Start playing!
+            </.button>
+          </:actions>
+        </.simple_form>
+      </div>
+    </.modal>
+    """
+  end
+
+  def user(assigns) do
+    ~H"""
+    <li class="w-28 h-28 rounded-full bg-white text-black flex items-center justify-center font-bold">
+      <%= @username %>
+    </li>
     """
   end
 
@@ -35,11 +69,15 @@ defmodule WordexBlastWeb.PlayLive do
         })
     end
 
+    form = to_form(%{"input" => ""})
     presences = Presence.list(@topic)
 
     socket =
       socket
-      |> assign(:presences, simple_presence_map(presences))
+      |> assign(
+        form: form,
+        presences: simple_presence_map(presences)
+      )
 
     {:ok, socket}
   end

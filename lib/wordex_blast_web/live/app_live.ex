@@ -7,8 +7,15 @@ defmodule WordexBlastWeb.AppLive do
       <div class="flex-1 max-w-screen-sm">
         <header class="border-dashed border-2 border-slate-50 rounded-lg p-4 border-opacity-5">
           <div class="flex gap-2">
-            <.header_button class="hover:bg-white hover:text-black">Create room</.header_button>
-            <.header_button class="!bg-white text-black cursor-default">Play</.header_button>
+            <.link
+              class="text-center cursor-pointer bg-white bg-opacity-5 drop-shadow-lg rounded-lg py-2 flex-1 font-bold text-lg hover:bg-white hover:text-black"
+              navigate={~p"/play/#{create_room_code()}"}
+            >
+              Create room
+            </.link>
+            <span class="text-center bg-white drop-shadow-lg rounded-lg py-2 flex-1 font-bold text-lg text-black cursor-default">
+              Play
+            </span>
           </div>
           <div class="bg-slate-50 bg-opacity-5 rounded-lg p-4 mt-2">
             <.flex_form for={@form} id="confirmation_form" phx-submit="enter_game">
@@ -37,8 +44,8 @@ defmodule WordexBlastWeb.AppLive do
               <div class="w-20 h-20 bg-white rounded-full" />
               <span class="my-4"><%= room %></span>
               <div class="flex items-center">
-                <div class="w-8 h-8 bg-black rounded-full z-20" />
-                <div class="w-8 h-8 bg-blue-500 rounded-full z-10 -ml-4" />
+                <div class="w-8 h-8 bg-white rounded-full z-20" />
+                <div class="w-8 h-8 bg-black rounded-full z-10 -ml-4" />
                 <div class="w-8 h-8 bg-white rounded-full -ml-4" />
                 <span class="ml-2">+4</span>
               </div>
@@ -80,20 +87,6 @@ defmodule WordexBlastWeb.AppLive do
     """
   end
 
-  attr(:class, :string, default: nil)
-  slot(:inner_block, required: true)
-
-  defp header_button(assigns) do
-    ~H"""
-    <button class={[
-      "bg-white bg-opacity-5 drop-shadow-lg rounded-lg py-2 flex-1 font-bold text-lg",
-      @class
-    ]}>
-      <%= render_slot(@inner_block) %>
-    </button>
-    """
-  end
-
   def mount(_params, _session, socket) do
     form = to_form(%{"game_code" => ""})
 
@@ -128,5 +121,11 @@ defmodule WordexBlastWeb.AppLive do
 
   def handle_event("enter_game", %{"game_code" => game_code}, socket) do
     {:noreply, push_navigate(socket, to: ~p"/play/#{String.upcase(game_code)}")}
+  end
+
+  # TODO: move to context
+  defp create_room_code() do
+    for(_ <- 0..3, do: List.to_string([Enum.random(65..90)]))
+    |> Enum.join()
   end
 end
