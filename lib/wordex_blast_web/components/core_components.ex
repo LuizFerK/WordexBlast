@@ -238,7 +238,7 @@ defmodule WordexBlastWeb.CoreComponents do
   def flex_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="flex mt-4 gap-2 w-full">
+      <div class="flex gap-2 w-full">
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>

@@ -3,27 +3,29 @@ defmodule WordexBlastWeb.AppLive do
 
   def render(assigns) do
     ~H"""
-    <div class="flex justify-center gap-8">
+    <div class="flex justify-center gap-8 pb-8">
       <div class="flex-1 max-w-screen-sm">
         <header class="border-dashed border-2 border-slate-50 rounded-lg p-4 border-opacity-5">
           <div class="flex gap-2">
-            <.header_button>Create room</.header_button>
-            <.header_button class="bg-opacity-100 text-black">Play</.header_button>
+            <.header_button class="hover:bg-white hover:text-black">Create room</.header_button>
+            <.header_button class="!bg-white text-black cursor-default">Play</.header_button>
           </div>
-          <.flex_form for={@form} id="confirmation_form" phx-submit="enter_game">
-            <.input
-              maxlength="4"
-              style="text-transform:uppercase; text-align:center"
-              autocomplete="off"
-              field={@form[:game_code]}
-              placeholder="GAME CODE"
-              class="!mt-0 !border-opacity-5 font-bold"
-              container_class="flex-1"
-            />
-            <.button phx-disable-with="Confirming...">
-              <.icon name="hero-arrow-right-solid" />
-            </.button>
-          </.flex_form>
+          <div class="bg-slate-50 bg-opacity-5 rounded-lg p-4 mt-2">
+            <.flex_form for={@form} id="confirmation_form" phx-submit="enter_game">
+              <.input
+                maxlength="4"
+                style="text-transform:uppercase; text-align:center"
+                autocomplete="off"
+                field={@form[:game_code]}
+                placeholder="GAME CODE"
+                class="!mt-0 !border-opacity-5 font-bold"
+                container_class="flex-1"
+              />
+              <.button phx-disable-with="Confirming...">
+                <.icon name="hero-arrow-right-solid" />
+              </.button>
+            </.flex_form>
+          </div>
         </header>
         <section>
           <h1 class="mt-4 font-bold text-2xl mb-2">Available servers</h1>
@@ -35,8 +37,8 @@ defmodule WordexBlastWeb.AppLive do
               <div class="w-20 h-20 bg-white rounded-full" />
               <span class="my-4"><%= room %></span>
               <div class="flex items-center">
-                <div class="w-8 h-8 bg-white rounded-full bg-black z-20" />
-                <div class="w-8 h-8 bg-white rounded-full bg-blue-500 z-10 -ml-4" />
+                <div class="w-8 h-8 bg-black rounded-full z-20" />
+                <div class="w-8 h-8 bg-blue-500 rounded-full z-10 -ml-4" />
                 <div class="w-8 h-8 bg-white rounded-full -ml-4" />
                 <span class="ml-2">+4</span>
               </div>
@@ -44,7 +46,7 @@ defmodule WordexBlastWeb.AppLive do
           </ul>
         </section>
       </div>
-      <aside>
+      <aside class="h-full sticky top-[88px]">
         <section class="border-dashed border-2 border-slate-50 rounded-lg p-4 border-opacity-5 h-min">
           <div class="bg-slate-50 bg-opacity-5 rounded-lg w-60 p-4 text-center flex flex-col items-center text-xs">
             <.icon name="hero-user-solid my-4" />
@@ -84,7 +86,7 @@ defmodule WordexBlastWeb.AppLive do
   defp header_button(assigns) do
     ~H"""
     <button class={[
-      "bg-white bg-opacity-5 drop-shadow-lg rounded-lg py-2 flex-1 font-bold text-lg hover:bg-white hover:text-black",
+      "bg-white bg-opacity-5 drop-shadow-lg rounded-lg py-2 flex-1 font-bold text-lg",
       @class
     ]}>
       <%= render_slot(@inner_block) %>
@@ -99,7 +101,28 @@ defmodule WordexBlastWeb.AppLive do
      assign(socket,
        form: form,
        leaderboard: Enum.with_index(["User 1", "User 2", "User 3", "User 4", "User 5"]),
-       rooms: ["ASH9", "ASDJ", "BSK2", "O23J", "X3PQ"]
+       rooms: [
+         "ASH9",
+         "ASDJ",
+         "BSK2",
+         "O23J",
+         "X3PQ",
+         "ASH9",
+         "ASDJ",
+         "BSK2",
+         "O23J",
+         "X3PQ",
+         "ASH9",
+         "ASDJ",
+         "BSK2",
+         "O23J",
+         "X3PQ",
+         "ASH9",
+         "ASDJ",
+         "BSK2",
+         "O23J",
+         "X3PQ"
+       ]
      ), temporary_assigns: [form: nil]}
   end
 

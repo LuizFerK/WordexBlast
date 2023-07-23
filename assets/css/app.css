@@ -2,12 +2,8 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-body {
-  height: 88vh;
-}
-
 .background {
-  position: absolute;
+  position: fixed;
   overflow: hidden;
   width: 100%;
   height: 100%;
@@ -62,4 +58,3 @@ body {
   top: 67%;
   transform: translateX(-50%) translateY(-50%);
 }
-
