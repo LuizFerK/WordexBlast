@@ -23,7 +23,7 @@ defmodule WordexBlastWeb.AppLive do
                 maxlength="4"
                 style="text-transform:uppercase; text-align:center"
                 autocomplete="off"
-                field={@form[:game_code]}
+                field={@form[:room_id]}
                 placeholder="GAME CODE"
                 class="!mt-0 !border-opacity-5 font-bold"
                 container_class="flex-1"
@@ -88,7 +88,7 @@ defmodule WordexBlastWeb.AppLive do
   end
 
   def mount(_params, _session, socket) do
-    form = to_form(%{"game_code" => ""})
+    form = to_form(%{"room_id" => ""})
 
     {:ok,
      assign(socket,
@@ -119,8 +119,8 @@ defmodule WordexBlastWeb.AppLive do
      ), temporary_assigns: [form: nil]}
   end
 
-  def handle_event("enter_game", %{"game_code" => game_code}, socket) do
-    {:noreply, push_navigate(socket, to: ~p"/play/#{String.upcase(game_code)}")}
+  def handle_event("enter_game", %{"room_id" => room_id}, socket) do
+    {:noreply, push_navigate(socket, to: ~p"/play/#{String.upcase(room_id)}")}
   end
 
   # TODO: move to context

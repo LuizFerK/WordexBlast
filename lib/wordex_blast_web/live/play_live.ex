@@ -3,8 +3,6 @@ defmodule WordexBlastWeb.PlayLive do
 
   alias WordexBlastWeb.Presence
 
-  @topic "play:room"
-
   def render(assigns) do
     ~H"""
     <div class="mx-auto max-w-5xl flex flex-col items-center">
@@ -73,22 +71,25 @@ defmodule WordexBlastWeb.PlayLive do
     """
   end
 
-  def mount(_params, _session, socket) do
+  def mount(%{"room_id" => room_id}, _session, socket) do
+    topic = "play:#{room_id}"
+
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(WordexBlast.PubSub, @topic)
+      Phoenix.PubSub.subscribe(WordexBlast.PubSub, topic)
 
       {:ok, _} =
-        Presence.track(self(), @topic, "test-#{Enum.random(0..1000)}", %{
+        Presence.track(self(), topic, "test-#{Enum.random(0..1000)}", %{
           username: "test-#{Enum.random(0..1000)}"
         })
     end
 
     form = to_form(%{"input" => ""})
-    presences = Presence.list(@topic)
+    presences = Presence.list(topic)
 
     socket =
       socket
       |> assign(
+        room_id: room_id,
         form: form,
         presences: simple_presence_map(presences)
       )
@@ -100,10 +101,6 @@ defmodule WordexBlastWeb.PlayLive do
     Enum.into(presences, %{}, fn {user_id, %{metas: [meta | _]}} ->
       {user_id, meta}
     end)
-  end
-
-  def handle_params(%{"game_code" => game_code}, _session, socket) do
-    {:noreply, assign(socket, game_code: game_code)}
   end
 
   def handle_info(%{event: "presence_diff", payload: diff}, socket) do
