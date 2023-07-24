@@ -1,30 +1,32 @@
 defmodule WordexBlastWeb.AppLive do
   use WordexBlastWeb, :live_view
 
+  alias WordexBlast.Rooms
+
   def render(assigns) do
     ~H"""
     <div class="flex justify-center gap-8 pb-8">
       <div class="flex-1 max-w-screen-sm">
         <header class="border-dashed border-2 border-slate-50 rounded-lg p-4 border-opacity-5">
           <div class="flex gap-2">
-            <.link
+            <button
               class="text-center cursor-pointer bg-white bg-opacity-5 drop-shadow-lg rounded-lg py-2 flex-1 font-bold text-lg hover:bg-white hover:text-black"
-              navigate={~p"/play/#{create_room_code()}"}
+              phx-click="create_room"
             >
               Create room
-            </.link>
+            </button>
             <span class="text-center bg-white drop-shadow-lg rounded-lg py-2 flex-1 font-bold text-lg text-black cursor-default">
               Play
             </span>
           </div>
           <div class="bg-slate-50 bg-opacity-5 rounded-lg p-4 mt-2">
-            <.flex_form for={@form} id="confirmation_form" phx-submit="enter_game">
+            <.flex_form for={@form} id="confirmation_form" phx-submit="enter_room">
               <.input
                 maxlength="4"
                 style="text-transform:uppercase; text-align:center"
                 autocomplete="off"
-                field={@form[:room_id]}
-                placeholder="GAME CODE"
+                field={@form[:room_code]}
+                placeholder="ROOM CODE"
                 class="!mt-0 !border-opacity-5 font-bold"
                 container_class="flex-1"
               />
@@ -42,7 +44,7 @@ defmodule WordexBlastWeb.AppLive do
               class="bg-slate-50 bg-opacity-5 rounded-lg p-4 py-6 text-center flex flex-col items-center font-bold"
             >
               <div class="w-20 h-20 bg-white rounded-full" />
-              <span class="my-4"><%= room %></span>
+              <span class="my-4"><%= room.code %></span>
               <div class="flex items-center">
                 <div class="w-8 h-8 bg-white rounded-full z-20" />
                 <div class="w-8 h-8 bg-black rounded-full z-10 -ml-4" />
@@ -88,44 +90,27 @@ defmodule WordexBlastWeb.AppLive do
   end
 
   def mount(_params, _session, socket) do
-    form = to_form(%{"room_id" => ""})
+    form = to_form(%{"room_code" => ""})
 
     {:ok,
      assign(socket,
        form: form,
        leaderboard: Enum.with_index(["User 1", "User 2", "User 3", "User 4", "User 5"]),
-       rooms: [
-         "ASH9",
-         "ASDJ",
-         "BSK2",
-         "O23J",
-         "X3PQ",
-         "ASH9",
-         "ASDJ",
-         "BSK2",
-         "O23J",
-         "X3PQ",
-         "ASH9",
-         "ASDJ",
-         "BSK2",
-         "O23J",
-         "X3PQ",
-         "ASH9",
-         "ASDJ",
-         "BSK2",
-         "O23J",
-         "X3PQ"
-       ]
+       rooms: Rooms.list_rooms()
      ), temporary_assigns: [form: nil]}
   end
 
-  def handle_event("enter_game", %{"room_id" => room_id}, socket) do
-    {:noreply, push_navigate(socket, to: ~p"/play/#{String.upcase(room_id)}")}
+  def handle_event("enter_room", %{"room_code" => room_code}, socket) do
+    {:noreply, push_navigate(socket, to: ~p"/play/#{String.upcase(room_code)}")}
   end
 
-  # TODO: move to context
-  defp create_room_code() do
-    for(_ <- 0..3, do: List.to_string([Enum.random(65..90)]))
-    |> Enum.join()
+  def handle_event("create_room", _params, socket) do
+    case Rooms.create_room() do
+      {:ok, room} ->
+        {:noreply, push_navigate(socket, to: ~p"/play/#{room.code}")}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Error while creating a new room. Try again!")}
+    end
   end
 end

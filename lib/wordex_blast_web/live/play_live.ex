@@ -1,6 +1,7 @@
 defmodule WordexBlastWeb.PlayLive do
   use WordexBlastWeb, :live_view
 
+  alias WordexBlast.Rooms
   alias WordexBlastWeb.Presence
 
   def render(assigns) do
@@ -18,7 +19,7 @@ defmodule WordexBlastWeb.PlayLive do
           </div>
         </div>
       </section>
-      <.flex_form for={@form} id="confirmation_form" phx-submit="enter_game">
+      <.flex_form for={@form} id="confirmation_form" phx-submit="">
         <.input
           style="text-transform:uppercase; text-align:center"
           autocomplete="off"
@@ -36,7 +37,7 @@ defmodule WordexBlastWeb.PlayLive do
       <h1 class="font-bold text-xl mb-4">Welcome to Wordex Blaster!</h1>
       <p>To start playing, let's setup your account.</p>
       <div class="w-full">
-        <.simple_form for={@form} id="confirmation_form" phx-submit="enter_game">
+        <.simple_form for={@form} id="confirmation_form" phx-submit="">
           <.label>Avatar:</.label>
           <.input
             label="Nickname:"
@@ -71,30 +72,35 @@ defmodule WordexBlastWeb.PlayLive do
     """
   end
 
-  def mount(%{"room_id" => room_id}, _session, socket) do
-    topic = "play:#{room_id}"
+  def mount(%{"room_code" => room_code}, _session, socket) do
+    if Rooms.get_room(room_code) != nil do
+      topic = "play:#{room_code}"
 
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(WordexBlast.PubSub, topic)
+      if connected?(socket) do
+        Phoenix.PubSub.subscribe(WordexBlast.PubSub, topic)
 
-      {:ok, _} =
-        Presence.track(self(), topic, "test-#{Enum.random(0..1000)}", %{
-          username: "test-#{Enum.random(0..1000)}"
-        })
+        {:ok, _} =
+          Presence.track(self(), topic, "test-#{Enum.random(0..1000)}", %{
+            username: "test-#{Enum.random(0..1000)}"
+          })
+      end
+
+      form = to_form(%{"input" => ""})
+      presences = Presence.list(topic)
+
+      socket =
+        socket
+        |> assign(
+          room_code: room_code,
+          form: form,
+          presences: simple_presence_map(presences)
+        )
+
+      {:ok, socket}
+    else
+      {:ok,
+       socket |> put_flash(:error, "This room does not exists...") |> push_navigate(to: ~p(/app))}
     end
-
-    form = to_form(%{"input" => ""})
-    presences = Presence.list(topic)
-
-    socket =
-      socket
-      |> assign(
-        room_id: room_id,
-        form: form,
-        presences: simple_presence_map(presences)
-      )
-
-    {:ok, socket}
   end
 
   def simple_presence_map(presences) do
