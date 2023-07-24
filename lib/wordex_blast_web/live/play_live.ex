@@ -8,9 +8,18 @@ defmodule WordexBlastWeb.PlayLive do
   def render(assigns) do
     ~H"""
     <div class="mx-auto max-w-5xl flex flex-col items-center">
-      <ul class="h-[75vh] flex gap-8 items-center">
-        <.user :for={{_user_id, meta} <- @presences} username={meta.username} />
-      </ul>
+      <section class="h-[75vh] flex gap-8 items-center">
+        <div class="play-container">
+          <div class="play-icon">
+            <.user
+              :for={{{_user_id, meta}, idx} <- Enum.with_index(@presences)}
+              username={meta.username}
+              idx={idx}
+              user_count={Enum.count(@presences)}
+            />
+          </div>
+        </div>
+      </section>
       <.flex_form for={@form} id="confirmation_form" phx-submit="enter_game">
         <.input
           style="text-transform:uppercase; text-align:center"
@@ -53,9 +62,14 @@ defmodule WordexBlastWeb.PlayLive do
 
   def user(assigns) do
     ~H"""
-    <li class="w-28 h-28 rounded-full bg-white text-black flex items-center justify-center font-bold">
-      <%= @username %>
-    </li>
+    <div
+      class="w-28 h-28 rounded-full bg-white text-black flex items-center justify-center font-bold play"
+      style={"--i:#{@idx};--x:#{@user_count}"}
+    >
+      <div>
+        <%= @username %>
+      </div>
+    </div>
     """
   end
 
