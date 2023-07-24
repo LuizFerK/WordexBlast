@@ -58,19 +58,35 @@ defmodule WordexBlastWeb.AppLive do
       </div>
       <aside class="h-full sticky top-[88px]">
         <section class="border-dashed border-2 border-slate-50 rounded-lg p-4 border-opacity-5 h-min">
-          <div class="bg-slate-50 bg-opacity-5 rounded-lg w-60 p-4 text-center flex flex-col items-center text-xs">
+          <div class="bg-slate-50 bg-opacity-5 rounded-lg w-60 p-4 text-center text-xs">
             <.icon name="hero-user-solid my-4" />
-            <span class="text-sm">Connect to your account to enjoy 100% of the game experience!</span>
-            <.link
-              navigate={~p"/users/log_in"}
-              class="my-4 p-3 rounded-lg w-full bg-slate-50 text-black font-bold text-sm"
-            >
-              Login
-            </.link>
-            <span>
-              Don't have an account?
-              <.link navigate={~p"/users/register"} class="font-bold">SignUp</.link>
-            </span>
+            <div :if={!@current_user} class="flex flex-col items-center">
+              <span class="text-sm">
+                Connect to your account to enjoy 100% of the game experience!
+              </span>
+              <.link
+                navigate={~p"/users/log_in"}
+                class="my-4 p-3 rounded-lg w-full bg-slate-50 text-black font-bold text-sm"
+              >
+                Login
+              </.link>
+              <span>
+                Don't have an account?
+                <.link navigate={~p"/users/register"} class="font-bold">SignUp</.link>
+              </span>
+            </div>
+            <div :if={@current_user} class="flex flex-col items-center text-sm pb-3">
+              <span>
+                Welcome back!
+              </span>
+              <span class="font-bold">
+                <%= get_username(@current_user.email) %>
+              </span>
+              <div class="flex items-center gap-2 mt-4">
+                <.icon name="hero-trophy-solid bg-yellow-400" />
+                <span>200</span>
+              </div>
+            </div>
           </div>
         </section>
         <section class="mt-6">
@@ -96,6 +112,13 @@ defmodule WordexBlastWeb.AppLive do
       </aside>
     </div>
     """
+  end
+
+  defp get_username(email) do
+    email
+    |> String.split("@")
+    |> hd()
+    |> String.capitalize()
   end
 
   def mount(_params, _session, socket) do

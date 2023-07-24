@@ -20,11 +20,11 @@ defmodule WordexBlastWeb.PlayLive do
           </div>
         </div>
       </section>
-      <.flex_form for={@form} id="confirmation_form" phx-submit="">
+      <.flex_form for={@play_form} id="play_form" phx-submit="">
         <.input
           style="text-transform:uppercase; text-align:center"
           autocomplete="off"
-          field={@form[:input]}
+          field={@play_form[:input]}
           placeholder="TYPE! QUICK!"
           class="!mt-0 font-bold border-none bg-white bg-opacity-5"
           container_class="flex-1 w-96"
@@ -34,21 +34,22 @@ defmodule WordexBlastWeb.PlayLive do
         </.button>
       </.flex_form>
     </div>
-    <.modal id="setup-user" class="max-w-xl" show>
+    <.modal id="setup-user" class="max-w-xl" show={!@current_user} keep_open>
       <h1 class="font-bold text-xl mb-4">Welcome to Wordex Blast!</h1>
       <p>To start playing, let's setup your account.</p>
       <div class="w-full">
-        <.simple_form for={@form} id="confirmation_form" phx-submit="">
+        <.simple_form for={@user_form} id="user_form" phx-submit="">
           <.label>Avatar:</.label>
           <.input
             label="Nickname:"
             maxlength="4"
             autocomplete="off"
-            field={@form[:input]}
+            field={@user_form[:username]}
             placeholder="My awesome nickname"
             class="font-bold text-center"
             container_class="mt-0"
           />
+          <%!-- <span><%= @user_form[:username] %></span> --%>
           <:actions>
             <.button class="w-full" phx-disable-with="Confirming...">
               Start playing!
@@ -81,23 +82,26 @@ defmodule WordexBlastWeb.PlayLive do
         Phoenix.PubSub.subscribe(WordexBlast.PubSub, topic)
         Monitor.monitor(self(), room_id)
 
-        IO.inspect("track")
-        IO.inspect(self())
+        user = Map.get(socket.assigns, :current_user)
 
-        {:ok, _} =
-          Presence.track(self(), topic, "test-#{Enum.random(0..1000)}", %{
-            username: "test-#{Enum.random(0..1000)}"
-          })
+        if user do
+          {:ok, _} =
+            Presence.track(self(), topic, user.id, %{
+              username: user.email |> String.split("@") |> hd() |> String.capitalize()
+            })
+        end
       end
 
-      form = to_form(%{"input" => ""})
+      play_form = to_form(%{"input" => ""})
+      user_form = to_form(%{"username" => ""})
       presences = Presence.list(topic)
 
       socket =
         socket
         |> assign(
           room_id: room_id,
-          form: form,
+          play_form: play_form,
+          user_form: user_form,
           presences: simple_presence_map(presences)
         )
 
@@ -115,8 +119,6 @@ defmodule WordexBlastWeb.PlayLive do
   end
 
   def handle_info(%{event: "presence_diff", payload: diff}, socket) do
-    IO.inspect(diff)
-
     socket =
       socket
       |> remove_presences(diff.leaves)

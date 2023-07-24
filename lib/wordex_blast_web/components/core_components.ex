@@ -38,6 +38,7 @@ defmodule WordexBlastWeb.CoreComponents do
   """
   attr(:id, :string, required: true)
   attr(:show, :boolean, default: false)
+  attr(:keep_open, :boolean, default: false)
   attr(:class, :string, default: nil)
   attr(:on_cancel, JS, default: %JS{})
   slot(:inner_block, required: true)
@@ -67,9 +68,11 @@ defmodule WordexBlastWeb.CoreComponents do
           ]}>
             <.focus_wrap
               id={"#{@id}-container"}
-              phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
+              phx-window-keydown={
+                if !@keep_open, do: JS.exec("data-cancel", to: "##{@id}"), else: nil
+              }
               phx-key="escape"
-              phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
+              phx-click-away={if !@keep_open, do: JS.exec("data-cancel", to: "##{@id}"), else: nil}
               class="shadow-slate-700/10 ring-slate-700/10 relative hidden rounded-2xl bg-white/10 p-14 ring-1 transition overflow-hidden"
             >
               <div class="background background-modal">
@@ -80,6 +83,7 @@ defmodule WordexBlastWeb.CoreComponents do
               </div>
               <div class="absolute top-6 right-5">
                 <button
+                  :if={!@keep_open}
                   phx-click={JS.exec("data-cancel", to: "##{@id}")}
                   type="button"
                   class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
