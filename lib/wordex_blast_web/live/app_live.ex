@@ -39,9 +39,10 @@ defmodule WordexBlastWeb.AppLive do
         <section>
           <h1 class="mt-4 font-bold text-2xl mb-2">Available servers</h1>
           <ul id="rooms" phx-update="stream" class="grid grid-cols-3 gap-3">
-            <li
+            <.link
               :for={{room_id, room} <- @streams.rooms}
               id={room_id}
+              navigate={~p"/play/#{room.id}"}
               class="bg-slate-50 bg-opacity-5 rounded-lg p-4 py-6 text-center flex flex-col items-center font-bold"
             >
               <div class="w-20 h-20 bg-white rounded-full" />
@@ -52,7 +53,7 @@ defmodule WordexBlastWeb.AppLive do
                 <div class="w-8 h-8 bg-white rounded-full -ml-4" />
                 <span class="ml-2">+4</span>
               </div>
-            </li>
+            </.link>
           </ul>
         </section>
       </div>

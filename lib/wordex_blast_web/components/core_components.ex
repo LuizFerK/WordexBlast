@@ -270,7 +270,8 @@ defmodule WordexBlastWeb.CoreComponents do
   """
   attr(:type, :string, default: nil)
   attr(:class, :string, default: nil)
-  attr(:rest, :global, include: ~w(disabled form name value))
+  attr(:disabled, :boolean, default: false)
+  attr(:rest, :global, include: ~w(form name value))
 
   slot(:inner_block, required: true)
 
@@ -279,10 +280,13 @@ defmodule WordexBlastWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-slate-50 hover:bg-slate-300 py-2 px-3",
+        "phx-submit-loading:opacity-75 rounded-lg bg-slate-50 py-2 px-3",
         "text-sm font-semibold leading-6 text-black active:text-black/80",
+        @disabled && "opacity-20 cursor-not-allowed",
+        !@disabled && "hover:bg-slate-300",
         @class
       ]}
+      disabled={@disabled}
       {@rest}
     >
       <%= render_slot(@inner_block) %>

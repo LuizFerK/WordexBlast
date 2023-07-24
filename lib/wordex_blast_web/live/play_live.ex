@@ -10,6 +10,8 @@ defmodule WordexBlastWeb.PlayLive do
     <div class="mx-auto max-w-5xl flex flex-col items-center">
       <section class="h-[75vh] flex gap-8 items-center">
         <div class="play-container">
+          <div :if={@game_state == "wait"} class="bomb">Waiting for players...</div>
+          <div :if={@game_state == "running"} class="bomb">start</div>
           <div class="play-icon">
             <.user
               :for={{{_user_id, meta}, idx} <- Enum.with_index(@presences)}
@@ -34,24 +36,27 @@ defmodule WordexBlastWeb.PlayLive do
         </.button>
       </.flex_form>
     </div>
-    <.modal id="setup-user" class="max-w-xl" show={!@current_user} keep_open>
+    <.modal :if={!@current_player} id="setup-user" class="max-w-xl" show keep_open>
       <h1 class="font-bold text-xl mb-4">Welcome to Wordex Blast!</h1>
       <p>To start playing, let's setup your account.</p>
       <div class="w-full">
-        <.simple_form for={@user_form} id="user_form" phx-submit="">
+        <.simple_form for={@user_form} id="user_form" phx-change="set_username" phx-submit="set_user">
           <.label>Avatar:</.label>
           <.input
             label="Nickname:"
-            maxlength="4"
+            maxlength="24"
             autocomplete="off"
             field={@user_form[:username]}
             placeholder="My awesome nickname"
             class="font-bold text-center"
             container_class="mt-0"
           />
-          <%!-- <span><%= @user_form[:username] %></span> --%>
           <:actions>
-            <.button class="w-full" phx-disable-with="Confirming...">
+            <.button
+              class="w-full"
+              disabled={String.length(@user_form.params["username"]) < 4}
+              phx-disable-with="Confirming..."
+            >
               Start playing!
             </.button>
           </:actions>
@@ -77,17 +82,16 @@ defmodule WordexBlastWeb.PlayLive do
   def mount(%{"room_id" => room_id}, _session, socket) do
     if Rooms.get_room(room_id) != nil do
       topic = "play:#{room_id}"
+      current_player = Map.get(socket.assigns, :current_user)
 
       if connected?(socket) do
         Phoenix.PubSub.subscribe(WordexBlast.PubSub, topic)
         Monitor.monitor(self(), room_id)
 
-        user = Map.get(socket.assigns, :current_user)
-
-        if user do
+        if current_player do
           {:ok, _} =
-            Presence.track(self(), topic, user.id, %{
-              username: user.email |> String.split("@") |> hd() |> String.capitalize()
+            Presence.track(self(), topic, current_player.id, %{
+              username: current_player.email |> String.split("@") |> hd() |> String.capitalize()
             })
         end
       end
@@ -100,9 +104,11 @@ defmodule WordexBlastWeb.PlayLive do
         socket
         |> assign(
           room_id: room_id,
+          current_player: current_player,
           play_form: play_form,
           user_form: user_form,
-          presences: simple_presence_map(presences)
+          presences: simple_presence_map(presences),
+          game_state: "wait"
         )
 
       {:ok, socket}
@@ -118,13 +124,31 @@ defmodule WordexBlastWeb.PlayLive do
     end)
   end
 
+  def handle_event("set_username", %{"username" => username}, socket) do
+    {:noreply, assign(socket, :user_form, to_form(%{"username" => username}))}
+  end
+
+  def handle_event("set_user", %{"username" => username}, socket) do
+    Presence.track(self(), "play:#{socket.assigns.room_id}", Ecto.UUID.generate(), %{
+      username: username
+    })
+
+    {:noreply, assign(socket, :current_player, %{email: username})}
+  end
+
   def handle_info(%{event: "presence_diff", payload: diff}, socket) do
     socket =
       socket
       |> remove_presences(diff.leaves)
       |> add_presences(diff.joins)
 
-    {:noreply, socket}
+    game_state =
+      case Map.keys(socket.assigns.presences) |> length() do
+        users_count when users_count < 2 -> "wait"
+        _ -> "running"
+      end
+
+    {:noreply, assign(socket, :game_state, game_state)}
   end
 
   defp remove_presences(socket, leaves) do

@@ -72,13 +72,32 @@
   transform: translateX(-50%) translateY(-50%);
 }
 
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
 .play-container {
   position: relative;
   width: 500px;
   height: 500px;
+}
+
+.play-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   border: 2px solid #FFFFFF20;
   border-radius: 50%;
   border-style: dashed;
+  animation: rotation 100s infinite linear;
 }
 
 .play-icon {
@@ -99,5 +118,14 @@
 }
 
 .play div {
+  transition: 0.2s;
   transform: rotate(calc(-360deg/var(--x) * var(--i)));
+}
+
+.bomb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  font-weight: bold;
 }
