@@ -25,7 +25,7 @@ defmodule WordexBlastWeb.AppLive do
                 maxlength="4"
                 style="text-transform:uppercase; text-align:center"
                 autocomplete="off"
-                field={@form[:room_code]}
+                field={@form[:room_id]}
                 placeholder="ROOM CODE"
                 class="!mt-0 !border-opacity-5 font-bold"
                 container_class="flex-1"
@@ -38,13 +38,14 @@ defmodule WordexBlastWeb.AppLive do
         </header>
         <section>
           <h1 class="mt-4 font-bold text-2xl mb-2">Available servers</h1>
-          <ul class="grid grid-cols-3 gap-3">
+          <ul id="rooms" phx-update="stream" class="grid grid-cols-3 gap-3">
             <li
-              :for={room <- @rooms}
+              :for={{room_id, room} <- @streams.rooms}
+              id={room_id}
               class="bg-slate-50 bg-opacity-5 rounded-lg p-4 py-6 text-center flex flex-col items-center font-bold"
             >
               <div class="w-20 h-20 bg-white rounded-full" />
-              <span class="my-4"><%= room.code %></span>
+              <span class="my-4"><%= room.id %></span>
               <div class="flex items-center">
                 <div class="w-8 h-8 bg-white rounded-full z-20" />
                 <div class="w-8 h-8 bg-black rounded-full z-10 -ml-4" />
@@ -60,8 +61,16 @@ defmodule WordexBlastWeb.AppLive do
           <div class="bg-slate-50 bg-opacity-5 rounded-lg w-60 p-4 text-center flex flex-col items-center text-xs">
             <.icon name="hero-user-solid my-4" />
             <span class="text-sm">Connect to your account to enjoy 100% of the game experience!</span>
-            <.button class="mt-4 mb-3 w-full">Login</.button>
-            <span>Don't have an account? <a href="" class="font-bold">SignUp</a></span>
+            <.link
+              navigate={~p"/users/log_in"}
+              class="my-4 p-3 rounded-lg w-full bg-slate-50 text-black font-bold text-sm"
+            >
+              Login
+            </.link>
+            <span>
+              Don't have an account?
+              <.link navigate={~p"/users/register"} class="font-bold">SignUp</.link>
+            </span>
           </div>
         </section>
         <section class="mt-6">
@@ -90,27 +99,38 @@ defmodule WordexBlastWeb.AppLive do
   end
 
   def mount(_params, _session, socket) do
-    form = to_form(%{"room_code" => ""})
+    if connected?(socket) do
+      Rooms.subscribe()
+    end
+
+    form = to_form(%{"room_id" => ""})
 
     {:ok,
-     assign(socket,
-       form: form,
-       leaderboard: Enum.with_index(["User 1", "User 2", "User 3", "User 4", "User 5"]),
-       rooms: Rooms.list_rooms()
-     ), temporary_assigns: [form: nil]}
+     socket
+     |> assign(:form, form)
+     |> assign(:leaderboard, Enum.with_index(["User 1", "User 2", "User 3", "User 4", "User 5"]))
+     |> stream(:rooms, Rooms.list_rooms()), temporary_assigns: [form: nil]}
   end
 
-  def handle_event("enter_room", %{"room_code" => room_code}, socket) do
-    {:noreply, push_navigate(socket, to: ~p"/play/#{String.upcase(room_code)}")}
+  def handle_event("enter_room", %{"room_id" => room_id}, socket) do
+    {:noreply, push_navigate(socket, to: ~p"/play/#{String.upcase(room_id)}")}
   end
 
   def handle_event("create_room", _params, socket) do
     case Rooms.create_room() do
       {:ok, room} ->
-        {:noreply, push_navigate(socket, to: ~p"/play/#{room.code}")}
+        {:noreply, push_navigate(socket, to: ~p"/play/#{room.id}")}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Error while creating a new room. Try again!")}
     end
+  end
+
+  def handle_info({:room_created, room}, socket) do
+    {:noreply, stream_insert(socket, :rooms, room, at: 0)}
+  end
+
+  def handle_info({:room_deleted, room}, socket) do
+    {:noreply, stream_delete(socket, :rooms, room)}
   end
 end

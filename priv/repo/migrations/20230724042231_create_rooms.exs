@@ -3,7 +3,7 @@ defmodule WordexBlast.Repo.Migrations.CreateRooms do
 
   def change do
     create table(:rooms, primary_key: false) do
-      add :code, :string, primary_key: true
+      add :id, :string, primary_key: true
       add :is_private, :boolean, default: false, null: false
       add :language, :string
 

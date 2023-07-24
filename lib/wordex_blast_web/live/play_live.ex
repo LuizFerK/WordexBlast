@@ -73,13 +73,13 @@ defmodule WordexBlastWeb.PlayLive do
     """
   end
 
-  def mount(%{"room_code" => room_code}, _session, socket) do
-    if Rooms.get_room(room_code) != nil do
-      topic = "play:#{room_code}"
+  def mount(%{"room_id" => room_id}, _session, socket) do
+    if Rooms.get_room(room_id) != nil do
+      topic = "play:#{room_id}"
 
       if connected?(socket) do
         Phoenix.PubSub.subscribe(WordexBlast.PubSub, topic)
-        Monitor.monitor(self(), room_code)
+        Monitor.monitor(self(), room_id)
 
         IO.inspect("track")
         IO.inspect(self())
@@ -96,7 +96,7 @@ defmodule WordexBlastWeb.PlayLive do
       socket =
         socket
         |> assign(
-          room_code: room_code,
+          room_id: room_id,
           form: form,
           presences: simple_presence_map(presences)
         )

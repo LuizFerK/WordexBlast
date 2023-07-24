@@ -8,6 +8,22 @@ defmodule WordexBlast.Rooms do
 
   alias WordexBlast.Rooms.Room
 
+  def subscribe do
+    Phoenix.PubSub.subscribe(WordexBlast.PubSub, "rooms")
+  end
+
+  def broadcast({:ok, room}, tag) do
+    Phoenix.PubSub.broadcast(
+      WordexBlast.PubSub,
+      "rooms",
+      {tag, room}
+    )
+
+    {:ok, room}
+  end
+
+  def broadcast({:error, _changeset} = error, _tag), do: error
+
   @doc """
   Returns the list of rooms.
 
@@ -35,7 +51,7 @@ defmodule WordexBlast.Rooms do
       nil
 
   """
-  def get_room(code), do: Repo.get(Room, code)
+  def get_room(id), do: Repo.get(Room, id)
 
   @doc """
   Creates a room.
@@ -50,15 +66,16 @@ defmodule WordexBlast.Rooms do
 
   """
   def create_room(attrs \\ %{}) do
-    code =
+    id =
       for(_ <- 0..3, do: List.to_string([Enum.random(65..90)]))
       |> Enum.join()
 
-    attrs = Map.put(attrs, :code, code)
+    attrs = Map.put(attrs, :id, id)
 
     %Room{}
     |> Room.changeset(attrs)
     |> Repo.insert()
+    |> broadcast(:room_created)
   end
 
   @doc """
@@ -92,7 +109,9 @@ defmodule WordexBlast.Rooms do
 
   """
   def delete_room(%Room{} = room) do
-    Repo.delete(room)
+    room
+    |> Repo.delete()
+    |> broadcast(:room_deleted)
   end
 
   @doc """
