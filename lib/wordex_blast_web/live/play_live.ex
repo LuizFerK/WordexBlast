@@ -2,6 +2,7 @@ defmodule WordexBlastWeb.PlayLive do
   use WordexBlastWeb, :live_view
 
   alias WordexBlast.Rooms
+  alias WordexBlast.Rooms.Monitor
   alias WordexBlastWeb.Presence
 
   def render(assigns) do
@@ -34,7 +35,7 @@ defmodule WordexBlastWeb.PlayLive do
       </.flex_form>
     </div>
     <.modal id="setup-user" class="max-w-xl" show>
-      <h1 class="font-bold text-xl mb-4">Welcome to Wordex Blaster!</h1>
+      <h1 class="font-bold text-xl mb-4">Welcome to Wordex Blast!</h1>
       <p>To start playing, let's setup your account.</p>
       <div class="w-full">
         <.simple_form for={@form} id="confirmation_form" phx-submit="">
@@ -78,6 +79,10 @@ defmodule WordexBlastWeb.PlayLive do
 
       if connected?(socket) do
         Phoenix.PubSub.subscribe(WordexBlast.PubSub, topic)
+        Monitor.monitor(self(), room_code)
+
+        IO.inspect("track")
+        IO.inspect(self())
 
         {:ok, _} =
           Presence.track(self(), topic, "test-#{Enum.random(0..1000)}", %{
@@ -110,6 +115,8 @@ defmodule WordexBlastWeb.PlayLive do
   end
 
   def handle_info(%{event: "presence_diff", payload: diff}, socket) do
+    IO.inspect(diff)
+
     socket =
       socket
       |> remove_presences(diff.leaves)

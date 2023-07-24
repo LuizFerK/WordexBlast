@@ -16,6 +16,8 @@ defmodule WordexBlast.Application do
       {Phoenix.PubSub, name: WordexBlast.PubSub},
       # Start Presence
       WordexBlastWeb.Presence,
+      # Rooms Monitor
+      WordexBlast.Rooms.Monitor,
       # Start Finch
       {Finch, name: WordexBlast.Finch},
       # Start the Endpoint (http/https)
