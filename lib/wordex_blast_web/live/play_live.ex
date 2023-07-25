@@ -2,7 +2,6 @@ defmodule WordexBlastWeb.PlayLive do
   use WordexBlastWeb, :live_view
 
   alias WordexBlast.Rooms
-  alias WordexBlast.Rooms.Monitor
   alias WordexBlastWeb.Presence
 
   def render(assigns) do
@@ -10,14 +9,18 @@ defmodule WordexBlastWeb.PlayLive do
     <div class="mx-auto max-w-5xl flex flex-col items-center">
       <section class="h-[75vh] flex gap-8 items-center">
         <div class="play-container">
-          <div :if={@game_state == "wait"} class="bomb">Waiting for players...</div>
-          <div :if={@game_state == "running"} class="bomb">start</div>
+          <%!-- <div :if={@game_state == "wait"} class="bomb">Waiting for players...</div>
+          <div :if={@game_state == "starting"} class="bomb">
+            <h1>Game starts in</h1>
+            <span><%= @start_countdown %></span>
+          </div>
+          <div :if={@game_state == "running"} class="bomb">start</div> --%>
           <div class="play-icon">
             <.user
-              :for={{{_user_id, meta}, idx} <- Enum.with_index(@presences)}
+              :for={{{_user_id, meta}, idx} <- Enum.with_index(@room.players)}
               username={meta.username}
               idx={idx}
-              user_count={Enum.count(@presences)}
+              user_count={Enum.count(@room.players)}
             />
           </div>
         </div>
@@ -80,17 +83,17 @@ defmodule WordexBlastWeb.PlayLive do
   end
 
   def mount(%{"room_id" => room_id}, _session, socket) do
-    if Rooms.get_room(room_id) != nil do
-      topic = "play:#{room_id}"
+    room = Rooms.get_room(room_id)
+
+    if room != nil do
       current_player = Map.get(socket.assigns, :current_user)
 
       if connected?(socket) do
-        Phoenix.PubSub.subscribe(WordexBlast.PubSub, topic)
-        Monitor.monitor(self(), room_id)
+        Rooms.subscribe_to_room(room_id)
 
         if current_player do
           {:ok, _} =
-            Presence.track(self(), topic, current_player.id, %{
+            Presence.track(self(), "presence:#{room_id}", current_player.id, %{
               username: current_player.email |> String.split("@") |> hd() |> String.capitalize()
             })
         end
@@ -98,17 +101,15 @@ defmodule WordexBlastWeb.PlayLive do
 
       play_form = to_form(%{"input" => ""})
       user_form = to_form(%{"username" => ""})
-      presences = Presence.list(topic)
 
       socket =
         socket
         |> assign(
+          room: room,
           room_id: room_id,
           current_player: current_player,
           play_form: play_form,
-          user_form: user_form,
-          presences: simple_presence_map(presences),
-          game_state: "wait"
+          user_form: user_form
         )
 
       {:ok, socket}
@@ -118,49 +119,45 @@ defmodule WordexBlastWeb.PlayLive do
     end
   end
 
-  def simple_presence_map(presences) do
-    Enum.into(presences, %{}, fn {user_id, %{metas: [meta | _]}} ->
-      {user_id, meta}
-    end)
-  end
-
   def handle_event("set_username", %{"username" => username}, socket) do
     {:noreply, assign(socket, :user_form, to_form(%{"username" => username}))}
   end
 
   def handle_event("set_user", %{"username" => username}, socket) do
-    Presence.track(self(), "play:#{socket.assigns.room_id}", Ecto.UUID.generate(), %{
+    Presence.track(self(), "presence:#{socket.assigns.room_id}", Ecto.UUID.generate(), %{
       username: username
     })
 
     {:noreply, assign(socket, :current_player, %{email: username})}
   end
 
-  def handle_info(%{event: "presence_diff", payload: diff}, socket) do
-    socket =
-      socket
-      |> remove_presences(diff.leaves)
-      |> add_presences(diff.joins)
-
-    game_state =
-      case Map.keys(socket.assigns.presences) |> length() do
-        users_count when users_count < 2 -> "wait"
-        _ -> "running"
-      end
-
-    {:noreply, assign(socket, :game_state, game_state)}
+  def handle_info({:room_updated, room}, socket) do
+    {:noreply, assign(socket, :room, room)}
   end
 
-  defp remove_presences(socket, leaves) do
-    user_ids = Enum.map(leaves, fn {user_id, _} -> user_id end)
+  # # Starting game
+  # def handle_info({:update_state, "starting", "wait", _tick}, socket) do
+  #   send(self(), {:update_state, "starting", "starting", socket.assigns.start_countdown - 1})
+  #   {:noreply, assign(socket, :game_state, "starting")}
+  # end
 
-    presences = Map.drop(socket.assigns.presences, user_ids)
+  # # Starting countdown ends
+  # def handle_info({:update_state, "starting", "starting", 0}, socket) do
+  #   :timer.sleep(1000)
+  #   send(self(), {:update_state, "running", "starting", nil})
+  #   {:noreply, assign(socket, :start_countdown, "GO!")}
+  # end
 
-    assign(socket, :presences, presences)
-  end
+  # # Starting countdown tick
+  # def handle_info({:update_state, "starting", "starting", tick}, socket) do
+  #   :timer.sleep(1000)
+  #   send(self(), {:update_state, "starting", "starting", tick - 1})
+  #   {:noreply, assign(socket, :start_countdown, tick)}
+  # end
 
-  defp add_presences(socket, joins) do
-    presences = Map.merge(socket.assigns.presences, simple_presence_map(joins))
-    assign(socket, :presences, presences)
-  end
+  # # Start game
+  # def handle_info({:update_state, "running", "starting", _tick}, socket) do
+  #   :timer.sleep(1000)
+  #   {:noreply, assign(socket, :game_state, "running")}
+  # end
 end
