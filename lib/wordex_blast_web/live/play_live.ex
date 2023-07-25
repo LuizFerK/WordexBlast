@@ -19,6 +19,7 @@ defmodule WordexBlastWeb.PlayLive do
             <.user
               :for={{{_user_id, meta}, idx} <- Enum.with_index(@room.players)}
               username={meta.username}
+              is_playing={meta.is_playing}
               idx={idx}
               user_count={Enum.count(@room.players)}
             />
@@ -72,7 +73,10 @@ defmodule WordexBlastWeb.PlayLive do
   def user(assigns) do
     ~H"""
     <div
-      class="w-28 h-28 rounded-full bg-white text-black flex items-center justify-center font-bold play"
+      class={[
+        "w-28 h-28 rounded-full bg-white text-black flex items-center justify-center font-bold play",
+        !@is_playing && "opacity-30"
+      ]}
       style={"--i:#{@idx};--x:#{@user_count}"}
     >
       <div>
@@ -94,7 +98,8 @@ defmodule WordexBlastWeb.PlayLive do
         if current_player do
           {:ok, _} =
             Presence.track(self(), "presence:#{room_id}", current_player.id, %{
-              username: current_player.email |> String.split("@") |> hd() |> String.capitalize()
+              username: current_player.email |> String.split("@") |> hd() |> String.capitalize(),
+              is_playing: !(room.status == "running")
             })
         end
       end
@@ -125,7 +130,8 @@ defmodule WordexBlastWeb.PlayLive do
 
   def handle_event("set_user", %{"username" => username}, socket) do
     Presence.track(self(), "presence:#{socket.assigns.room_id}", Ecto.UUID.generate(), %{
-      username: username
+      username: username,
+      is_playing: !(socket.assigns.room.status == "running")
     })
 
     {:noreply, assign(socket, :current_player, %{email: username})}
@@ -134,30 +140,4 @@ defmodule WordexBlastWeb.PlayLive do
   def handle_info({:room_updated, room}, socket) do
     {:noreply, assign(socket, :room, room)}
   end
-
-  # # Starting game
-  # def handle_info({:update_state, "starting", "wait", _tick}, socket) do
-  #   send(self(), {:update_state, "starting", "starting", socket.assigns.start_countdown - 1})
-  #   {:noreply, assign(socket, :game_state, "starting")}
-  # end
-
-  # # Starting countdown ends
-  # def handle_info({:update_state, "starting", "starting", 0}, socket) do
-  #   :timer.sleep(1000)
-  #   send(self(), {:update_state, "running", "starting", nil})
-  #   {:noreply, assign(socket, :start_countdown, "GO!")}
-  # end
-
-  # # Starting countdown tick
-  # def handle_info({:update_state, "starting", "starting", tick}, socket) do
-  #   :timer.sleep(1000)
-  #   send(self(), {:update_state, "starting", "starting", tick - 1})
-  #   {:noreply, assign(socket, :start_countdown, tick)}
-  # end
-
-  # # Start game
-  # def handle_info({:update_state, "running", "starting", _tick}, socket) do
-  #   :timer.sleep(1000)
-  #   {:noreply, assign(socket, :game_state, "running")}
-  # end
 end

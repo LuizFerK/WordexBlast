@@ -74,7 +74,7 @@ defmodule WordexBlast.Rooms do
         broadcast(room, :room_deleted)
         {:noreply, Map.drop(rooms, [room_id])}
 
-      p when p < 2 ->
+      p when p < 2 or room.status == "running" ->
         room = Map.put(room, :players, presences)
         broadcast_room(room, :room_updated)
 
