@@ -69,15 +69,68 @@ defmodule WordexBlast.Rooms do
       |> remove_presences(diff.leaves)
       |> add_presences(diff.joins)
 
-    if presences == %{} do
-      broadcast(room, :room_deleted)
-      {:noreply, Map.drop(rooms, [room_id])}
-    else
-      room = Map.put(room, :players, presences)
-      broadcast_room(room, :room_updated)
+    case Map.keys(presences) |> length() do
+      0 ->
+        broadcast(room, :room_deleted)
+        {:noreply, Map.drop(rooms, [room_id])}
 
-      {:noreply, Map.put(rooms, room_id, room)}
+      p when p < 2 ->
+        room = Map.put(room, :players, presences)
+        broadcast_room(room, :room_updated)
+
+        {:noreply, Map.put(rooms, room_id, room)}
+
+      _ ->
+        tick_id = Ecto.UUID.generate()
+        send(self(), {:update_room_status, "starting", room.status, room_id, tick_id})
+        room = Map.merge(room, %{players: presences, status: "starting", tick_id: tick_id})
+        broadcast_room(room, :room_updated)
+
+        {:noreply, Map.put(rooms, room_id, room)}
     end
+  end
+
+  # Starting game
+  def handle_info({:update_room_status, "starting", "waiting", room_id, tick_id}, rooms) do
+    server_pid = self()
+
+    Task.start(fn ->
+      :timer.sleep(5000)
+      send(server_pid, {:update_room_status, "running", "starting", room_id, tick_id})
+    end)
+
+    {:noreply, rooms}
+  end
+
+  # Re-starting game (a new player joins while starting)
+  def handle_info({:update_room_status, "starting", "starting", room_id, tick_id}, rooms) do
+    server_pid = self()
+
+    Task.start(fn ->
+      :timer.sleep(5000)
+      send(server_pid, {:update_room_status, "running", "starting", room_id, tick_id})
+    end)
+
+    {:noreply, rooms}
+  end
+
+  # Start game
+  def handle_info({:update_room_status, "running", "starting", room_id, tick_id}, rooms) do
+    room = Map.get(rooms, room_id)
+
+    if room.tick_id == tick_id do
+      # send(self(), {:update_room_status, "running", "waiting", tick_id})
+      updated_room = Map.put(room, :status, "running")
+      broadcast_room(updated_room, :room_updated)
+      {:noreply, Map.put(rooms, room_id, updated_room)}
+    else
+      {:noreply, rooms}
+    end
+  end
+
+  def handle_info(a, rooms) do
+    IO.inspect(a)
+    {:noreply, rooms}
   end
 
   defp remove_presences(presences, leaves) do

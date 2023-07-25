@@ -38,6 +38,9 @@ defmodule WordexBlastWeb.AppLive do
         </header>
         <section>
           <h1 class="mt-4 font-bold text-2xl mb-2">Available servers</h1>
+          <span :if={@n_rooms == 0}>
+            Oops, looks like there is no servers available right now. Create one above!
+          </span>
           <ul id="rooms" phx-update="stream" class="grid grid-cols-3 gap-3">
             <.link
               :for={{room_id, room} <- @streams.rooms}
@@ -127,13 +130,15 @@ defmodule WordexBlastWeb.AppLive do
       Rooms.subscribe()
     end
 
+    rooms = Rooms.list_rooms()
     form = to_form(%{"room_id" => ""})
 
     {:ok,
      socket
      |> assign(:form, form)
+     |> assign(:n_rooms, length(rooms))
      |> assign(:leaderboard, Enum.with_index(["User 1", "User 2", "User 3", "User 4", "User 5"]))
-     |> stream(:rooms, Rooms.list_rooms()), temporary_assigns: [form: nil]}
+     |> stream(:rooms, rooms), temporary_assigns: [form: nil]}
   end
 
   def handle_event("enter_room", %{"room_id" => room_id}, socket) do
@@ -151,10 +156,12 @@ defmodule WordexBlastWeb.AppLive do
   end
 
   def handle_info({:room_created, room}, socket) do
+    socket = update(socket, :n_rooms, &(&1 + 1))
     {:noreply, stream_insert(socket, :rooms, room, at: 0)}
   end
 
   def handle_info({:room_deleted, room}, socket) do
+    socket = update(socket, :n_rooms, &(&1 - 1))
     {:noreply, stream_delete(socket, :rooms, room)}
   end
 end

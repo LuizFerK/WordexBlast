@@ -9,12 +9,12 @@ defmodule WordexBlastWeb.PlayLive do
     <div class="mx-auto max-w-5xl flex flex-col items-center">
       <section class="h-[75vh] flex gap-8 items-center">
         <div class="play-container">
-          <%!-- <div :if={@game_state == "wait"} class="bomb">Waiting for players...</div>
-          <div :if={@game_state == "starting"} class="bomb">
+          <div :if={@room.status == "waiting"} class="bomb">Waiting for players...</div>
+          <div :if={@room.status == "starting"} class="bomb">
             <h1>Game starts in</h1>
-            <span><%= @start_countdown %></span>
+            <span>5</span>
           </div>
-          <div :if={@game_state == "running"} class="bomb">start</div> --%>
+          <div :if={@room.status == "running"} class="bomb">start</div>
           <div class="play-icon">
             <.user
               :for={{{_user_id, meta}, idx} <- Enum.with_index(@room.players)}
