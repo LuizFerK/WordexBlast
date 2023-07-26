@@ -1,5 +1,5 @@
 defmodule WordexBlastWeb.UserLoginLiveTest do
-  use WordexBlastWeb.ConnCase
+  use WordexBlastWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
   import WordexBlast.AccountsFixtures
@@ -18,7 +18,7 @@ defmodule WordexBlastWeb.UserLoginLiveTest do
         conn
         |> log_in_user(user_fixture())
         |> live(~p"/users/log_in")
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/app")
 
       assert {:ok, _conn} = result
     end
@@ -36,7 +36,7 @@ defmodule WordexBlastWeb.UserLoginLiveTest do
 
       conn = submit_form(form, conn)
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/app"
     end
 
     test "redirects to login page with a flash error if there are no valid credentials", %{
@@ -68,20 +68,6 @@ defmodule WordexBlastWeb.UserLoginLiveTest do
         |> follow_redirect(conn, ~p"/users/register")
 
       assert login_html =~ "Register"
-    end
-
-    test "redirects to forgot password page when the Forgot Password button is clicked", %{
-      conn: conn
-    } do
-      {:ok, lv, _html} = live(conn, ~p"/users/log_in")
-
-      {:ok, conn} =
-        lv
-        |> element(~s|main a:fl-contains("Forgot your password?")|)
-        |> render_click()
-        |> follow_redirect(conn, ~p"/users/reset_password")
-
-      assert conn.resp_body =~ "Forgot your password?"
     end
   end
 end

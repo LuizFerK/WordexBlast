@@ -1,5 +1,5 @@
 defmodule WordexBlast.AccountsTest do
-  use WordexBlast.DataCase
+  use WordexBlast.DataCase, async: true
 
   alias WordexBlast.Accounts
 

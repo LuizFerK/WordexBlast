@@ -1,5 +1,5 @@
 defmodule WordexBlastWeb.UserSettingsLiveTest do
-  use WordexBlastWeb.ConnCase
+  use WordexBlastWeb.ConnCase, async: true
 
   alias WordexBlast.Accounts
   import Phoenix.LiveViewTest

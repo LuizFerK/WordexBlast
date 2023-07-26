@@ -1,5 +1,5 @@
 defmodule WordexBlastWeb.UserConfirmationInstructionsLiveTest do
-  use WordexBlastWeb.ConnCase
+  use WordexBlastWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
   import WordexBlast.AccountsFixtures

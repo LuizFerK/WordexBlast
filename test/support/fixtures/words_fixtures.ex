@@ -7,14 +7,8 @@ defmodule WordexBlast.WordsFixtures do
   @doc """
   Generate a word.
   """
-  def word_fixture(attrs \\ %{}) do
-    {:ok, word} =
-      attrs
-      |> Enum.into(%{
-        word: "some word"
-      })
-      |> WordexBlast.Words.create_word()
-
+  def word_fixture() do
+    {:ok, word} = WordexBlast.Words.create_word("word")
     word
   end
 end
