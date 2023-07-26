@@ -2,7 +2,6 @@ defmodule WordexBlastWeb.PlayLive do
   use WordexBlastWeb, :live_view
 
   alias WordexBlast.Rooms
-  alias WordexBlastWeb.Presence
 
   def render(assigns) do
     ~H"""
@@ -87,41 +86,49 @@ defmodule WordexBlastWeb.PlayLive do
   end
 
   def mount(%{"room_id" => room_id}, _session, socket) do
-    room = Rooms.get_room(room_id)
+    room_id
+    |> Rooms.get_room()
+    |> mount_room(socket)
+  end
 
-    if room != nil do
-      current_player = Map.get(socket.assigns, :current_user)
+  defp mount_room(nil, socket) do
+    socket =
+      socket
+      |> put_flash(:error, "This room does not exists...")
+      |> push_navigate(to: ~p(/app))
 
-      if connected?(socket) do
-        Rooms.subscribe_to_room(room_id)
+    {:ok, socket}
+  end
 
-        if current_player do
-          {:ok, _} =
-            Presence.track(self(), "presence:#{room_id}", current_player.id, %{
-              username: current_player.email |> String.split("@") |> hd() |> String.capitalize(),
-              is_playing: !(room.status == "running")
-            })
-        end
-      end
+  defp mount_room(room, socket) do
+    current_player = Map.get(socket.assigns, :current_user)
 
-      play_form = to_form(%{"input" => ""})
-      user_form = to_form(%{"username" => ""})
-
-      socket =
-        socket
-        |> assign(
-          room: room,
-          room_id: room_id,
-          current_player: current_player,
-          play_form: play_form,
-          user_form: user_form
-        )
-
-      {:ok, socket}
-    else
-      {:ok,
-       socket |> put_flash(:error, "This room does not exists...") |> push_navigate(to: ~p(/app))}
+    if connected?(socket) do
+      Rooms.subscribe_to_room(room.id)
     end
+
+    if current_player do
+      Rooms.track_player(self(), room.id, %{
+        id: current_player.id,
+        username: current_player.email |> String.split("@") |> hd() |> String.capitalize(),
+        is_playing: !(room.status == "running")
+      })
+    end
+
+    play_form = to_form(%{"input" => ""})
+    user_form = to_form(%{"username" => ""})
+
+    socket =
+      socket
+      |> assign(
+        room: room,
+        room_id: room.id,
+        current_player: current_player,
+        play_form: play_form,
+        user_form: user_form
+      )
+
+    {:ok, socket}
   end
 
   def handle_event("set_username", %{"username" => username}, socket) do
@@ -129,7 +136,8 @@ defmodule WordexBlastWeb.PlayLive do
   end
 
   def handle_event("set_user", %{"username" => username}, socket) do
-    Presence.track(self(), "presence:#{socket.assigns.room_id}", Ecto.UUID.generate(), %{
+    Rooms.track_player(self(), socket.assigns.room_id, %{
+      id: Ecto.UUID.generate(),
       username: username,
       is_playing: !(socket.assigns.room.status == "running")
     })

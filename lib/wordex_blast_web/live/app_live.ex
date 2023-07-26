@@ -118,13 +118,6 @@ defmodule WordexBlastWeb.AppLive do
     """
   end
 
-  defp get_username(email) do
-    email
-    |> String.split("@")
-    |> hd()
-    |> String.capitalize()
-  end
-
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Rooms.subscribe()
@@ -150,8 +143,8 @@ defmodule WordexBlastWeb.AppLive do
       {:ok, room} ->
         {:noreply, push_navigate(socket, to: ~p"/play/#{room.id}")}
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Error while creating a new room. Try again!")}
+      {:error, error} ->
+        {:noreply, put_flash(socket, :error, error)}
     end
   end
 
@@ -163,5 +156,12 @@ defmodule WordexBlastWeb.AppLive do
   def handle_info({:room_deleted, room}, socket) do
     socket = update(socket, :n_rooms, &(&1 - 1))
     {:noreply, stream_delete(socket, :rooms, room)}
+  end
+
+  defp get_username(email) do
+    email
+    |> String.split("@")
+    |> hd()
+    |> String.capitalize()
   end
 end
