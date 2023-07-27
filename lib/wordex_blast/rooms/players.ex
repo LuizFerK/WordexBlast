@@ -8,7 +8,7 @@ defmodule WordexBlast.Rooms.Players do
   end
 
   def track_player(pid, room_id, player) do
-    Presence.track(pid, @topic <> room_id, player.id, player)
+    Presence.track(pid, @topic <> room_id, player.idx, player)
   end
 
   def diff_players(players, diff) do

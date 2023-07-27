@@ -56,6 +56,10 @@ defmodule WordexBlast.Rooms.Server do
   def handle_info({:update_room_status, "running", "starting", room_id, tick_id}, rooms),
     do: start_game(room_id, tick_id, rooms)
 
+  # Next round
+  def handle_info({:next_round, last_player_id, room_id}, rooms),
+    do: next_round(last_player_id, room_id, rooms)
+
   def handle_info(a, rooms) do
     IO.inspect(a)
     {:noreply, rooms}
@@ -83,7 +87,7 @@ defmodule WordexBlast.Rooms.Server do
   end
 
   defp create_room(nil, room_id, rooms) do
-    room = %{id: room_id, status: "waiting", players: %{}}
+    room = %{id: room_id, status: "waiting", players: %{}, selected_player: {"", %{}}}
     rooms = Map.put(rooms, room_id, room)
 
     Players.subscribe(room_id)
@@ -147,10 +151,45 @@ defmodule WordexBlast.Rooms.Server do
   defp start_on_valid_tick(_room, rooms, false), do: {:noreply, rooms}
 
   defp start_on_valid_tick(room, rooms, true) do
-    room = Map.put(room, :status, "running")
+    selected_player =
+      room.players
+      |> Enum.filter(&Map.get(elem(&1, 1), :is_playing))
+      |> Enum.random()
+
+    room = Map.merge(room, %{status: "running", selected_player: selected_player})
     rooms = Map.put(rooms, room.id, room)
 
     RoomsPubSub.broadcast_room(room, :room_updated)
+
+    server_pid = self()
+
+    Task.start(fn ->
+      :timer.sleep(5000)
+      send(server_pid, {:next_round, elem(selected_player, 1).id, room.id})
+    end)
+
+    {:noreply, rooms}
+  end
+
+  defp next_round(last_player_id, room_id, rooms) do
+    room = Map.get(rooms, room_id)
+
+    selected_player =
+      room.players
+      |> Enum.filter(&Map.get(elem(&1, 1), :is_playing))
+      |> Enum.filter(&(Map.get(elem(&1, 1), :id) != last_player_id))
+      |> Enum.random()
+
+    room = Map.put(room, :selected_player, selected_player)
+
+    RoomsPubSub.broadcast_room(room, :room_updated)
+
+    server_pid = self()
+
+    Task.start(fn ->
+      :timer.sleep(5000)
+      send(server_pid, {:next_round, elem(selected_player, 1).id, room_id})
+    end)
 
     {:noreply, rooms}
   end

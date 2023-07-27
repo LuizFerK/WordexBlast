@@ -13,12 +13,18 @@ defmodule WordexBlastWeb.PlayLive do
             <h1>Game starts in</h1>
             <span>5</span>
           </div>
-          <div :if={@room.status == "running"} class="bomb">start</div>
+          <div :if={@room.status == "running"} class="bomb">
+            <div
+              class="arrow"
+              style={"--i:#{String.to_integer(elem(@room.selected_player, 0)) - 1};--x:#{Enum.count(@room.players)}"}
+            />
+          </div>
           <div class="play-icon">
             <.user
               :for={{{_user_id, meta}, idx} <- Enum.with_index(@room.players)}
               username={meta.username}
               is_playing={meta.is_playing}
+              is_selected={Map.get(elem(@room.selected_player, 1), :id) == meta.id}
               idx={idx}
               user_count={Enum.count(@room.players)}
             />
@@ -74,7 +80,8 @@ defmodule WordexBlastWeb.PlayLive do
     <div
       class={[
         "w-28 h-28 rounded-full bg-white text-black flex items-center justify-center font-bold play",
-        !@is_playing && "opacity-30"
+        !@is_playing && "opacity-30",
+        @is_selected && "!bg-black text-white"
       ]}
       style={"--i:#{@idx};--x:#{@user_count}"}
     >
@@ -110,6 +117,7 @@ defmodule WordexBlastWeb.PlayLive do
     if current_player do
       Rooms.track_player(self(), room.id, %{
         id: current_player.id,
+        idx: (room.players |> Map.keys() |> length()) + 1,
         username: current_player.email |> String.split("@") |> hd() |> String.capitalize(),
         is_playing: !(room.status == "running")
       })
@@ -138,6 +146,7 @@ defmodule WordexBlastWeb.PlayLive do
   def handle_event("set_user", %{"username" => username}, socket) do
     Rooms.track_player(self(), socket.assigns.room_id, %{
       id: Ecto.UUID.generate(),
+      idx: (socket.assigns.room.players |> Map.keys() |> length()) + 1,
       username: username,
       is_playing: !(socket.assigns.room.status == "running")
     })
