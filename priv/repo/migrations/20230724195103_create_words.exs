@@ -3,7 +3,10 @@ defmodule WordexBlast.Repo.Migrations.CreateWords do
 
   def change do
     create table(:words, primary_key: false) do
-      add :word, :string, primary_key: true
+      add :id, :serial, primary_key: true
+      add :word, :string
     end
+
+    create index("words", [:word], unique: true)
   end
 end

@@ -10,12 +10,12 @@ defmodule WordexBlast.WordsTest do
 
     test "get_word/1 returns the word with given word" do
       word = word_fixture()
-      assert Words.get_word(word) == word
+      assert Words.get_word(word.word) == word.word
     end
 
     test "create_word/1 with valid data creates a word" do
-      assert {:ok, word} = Words.create_word("word")
-      assert word == "word"
+      assert {:ok, word} = Words.create_word(%{id: 1, word: "word"})
+      assert word.word == "word"
     end
 
     test "create_word/1 with invalid data returns error changeset" do

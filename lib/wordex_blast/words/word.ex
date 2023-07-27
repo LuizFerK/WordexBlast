@@ -2,8 +2,9 @@ defmodule WordexBlast.Words.Word do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key {:word, :string, autogenerate: false}
+  @primary_key {:id, :id, autogenerate: true}
   schema "words" do
+    field(:word, :string)
   end
 
   @doc false

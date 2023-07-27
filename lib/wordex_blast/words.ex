@@ -16,7 +16,7 @@ defmodule WordexBlast.Words do
   ## Examples
 
       iex> get_word("example")
-      "example"
+      %Word{}
 
       iex> get_word("exampl")
       nil
@@ -24,7 +24,7 @@ defmodule WordexBlast.Words do
   """
   def get_word(word) do
     Word
-    |> Repo.get(word)
+    |> Repo.get_by(word: word)
     |> Map.get(:word)
   end
 
@@ -33,23 +33,16 @@ defmodule WordexBlast.Words do
 
   ## Examples
 
-      iex> create_word("example")
-      {:ok, "example"}
+      iex> create_word(%{id: 1, word: "example"})
+      {:ok, %Word{}}
   ** (Ecto.NoResultsError)
-      iex> create_word(1)
+      iex> create_word(%{id: 1, word: 1})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_word({:ok, %Word{word: word}}) do
-    {:ok, word}
-  end
-
-  def create_word({:error, _} = error), do: error
-
-  def create_word(word) do
+  def create_word(attrs \\ %{}) do
     %Word{}
-    |> Word.changeset(%{word: word})
+    |> Word.changeset(attrs)
     |> Repo.insert()
-    |> create_word()
   end
 end
