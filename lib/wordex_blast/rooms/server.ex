@@ -45,12 +45,18 @@ defmodule WordexBlast.Rooms.Server do
   end
 
   # Starting game         Destination state ⬎           ⬐ Source state
-  def handle_info({:update_room_status, "starting", "waiting", room_id, tick_id}, rooms),
+  def handle_info({:update_room_status, "starting", "waiting", room_id, tick_id, 0}, rooms),
     do: starting_game(room_id, tick_id, rooms)
 
   # Re-starting game (a new player joins while starting)
-  def handle_info({:update_room_status, "starting", "starting", room_id, tick_id}, rooms),
+  def handle_info({:update_room_status, "starting", "starting", room_id, tick_id, 0}, rooms),
     do: starting_game(room_id, tick_id, rooms)
+
+  def handle_info({:update_room_status, "starting", "waiting", room_id, tick_id, tick}, rooms),
+    do: next_tick(room_id, tick_id, tick, rooms)
+
+  def handle_info({:update_room_status, "starting", "starting", room_id, tick_id, tick}, rooms),
+    do: next_tick(room_id, tick_id, tick, rooms)
 
   # Start game
   def handle_info({:update_room_status, "running", "starting", room_id, tick_id}, rooms),
@@ -87,7 +93,7 @@ defmodule WordexBlast.Rooms.Server do
   end
 
   defp create_room(nil, room_id, rooms) do
-    room = %{id: room_id, status: "waiting", players: %{}, selected_player: {"", %{}}}
+    room = %{id: room_id, status: "waiting", tick: 5, players: %{}, selected_player: {"", %{}}}
     rooms = Map.put(rooms, room_id, room)
 
     Players.subscribe(room_id)
@@ -108,6 +114,16 @@ defmodule WordexBlast.Rooms.Server do
   end
 
   defp update_room(player_count, room, rooms, players)
+       when player_count < 2 and room.status == "running" do
+    room = Map.merge(room, %{players: players, status: "waiting", selected_player: {"", %{}}})
+    rooms = Map.put(rooms, room.id, room)
+
+    RoomsPubSub.broadcast_room(room, :room_updated)
+
+    {:noreply, rooms}
+  end
+
+  defp update_room(player_count, room, rooms, players)
        when player_count < 2 or room.status == "running" do
     room = Map.put(room, :players, players)
     rooms = Map.put(rooms, room.id, room)
@@ -123,7 +139,7 @@ defmodule WordexBlast.Rooms.Server do
     room = Map.merge(room, %{players: players, status: "starting", tick_id: tick_id})
     rooms = Map.put(rooms, room.id, room)
 
-    send(self(), {:update_room_status, "starting", room.status, room.id, tick_id})
+    send(self(), {:update_room_status, "starting", room.status, room.id, tick_id, 5})
     RoomsPubSub.broadcast_room(room, :room_updated)
 
     {:noreply, rooms}
@@ -131,11 +147,40 @@ defmodule WordexBlast.Rooms.Server do
 
   # Game status
 
-  defp starting_game(room_id, tick_id, rooms) do
+  defp next_tick(room_id, tick_id, tick, rooms) do
+    room =
+      rooms
+      |> Map.get(room_id)
+      |> Map.put(:tick, tick)
+
+    rooms = Map.put(rooms, room_id, room)
+
+    RoomsPubSub.broadcast_room(room, :room_updated)
+
     server_pid = self()
 
     Task.start(fn ->
-      :timer.sleep(5000)
+      :timer.sleep(1000)
+      send(server_pid, {:update_room_status, "starting", "starting", room_id, tick_id, tick - 1})
+    end)
+
+    {:noreply, rooms}
+  end
+
+  defp starting_game(room_id, tick_id, rooms) do
+    room =
+      rooms
+      |> Map.get(room_id)
+      |> Map.put(:tick, "GO!")
+
+    rooms = Map.put(rooms, room_id, room)
+
+    RoomsPubSub.broadcast_room(room, :room_updated)
+
+    server_pid = self()
+
+    Task.start(fn ->
+      :timer.sleep(1000)
       send(server_pid, {:update_room_status, "running", "starting", room_id, tick_id})
     end)
 
@@ -174,23 +219,27 @@ defmodule WordexBlast.Rooms.Server do
   defp next_round(last_player_id, room_id, rooms) do
     room = Map.get(rooms, room_id)
 
-    selected_player =
-      room.players
-      |> Enum.filter(&Map.get(elem(&1, 1), :is_playing))
-      |> Enum.filter(&(Map.get(elem(&1, 1), :id) != last_player_id))
-      |> Enum.random()
+    if room.status == "running" do
+      selected_player =
+        room.players
+        |> Enum.filter(&Map.get(elem(&1, 1), :is_playing))
+        |> Enum.filter(&(Map.get(elem(&1, 1), :id) != last_player_id))
+        |> Enum.random()
 
-    room = Map.put(room, :selected_player, selected_player)
+      room = Map.put(room, :selected_player, selected_player)
 
-    RoomsPubSub.broadcast_room(room, :room_updated)
+      RoomsPubSub.broadcast_room(room, :room_updated)
 
-    server_pid = self()
+      server_pid = self()
 
-    Task.start(fn ->
-      :timer.sleep(5000)
-      send(server_pid, {:next_round, elem(selected_player, 1).id, room_id})
-    end)
+      Task.start(fn ->
+        :timer.sleep(5000)
+        send(server_pid, {:next_round, elem(selected_player, 1).id, room_id})
+      end)
 
-    {:noreply, rooms}
+      {:noreply, rooms}
+    else
+      {:noreply, rooms}
+    end
   end
 end

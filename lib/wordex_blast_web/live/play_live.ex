@@ -11,7 +11,7 @@ defmodule WordexBlastWeb.PlayLive do
           <div :if={@room.status == "waiting"} class="bomb">Waiting for players...</div>
           <div :if={@room.status == "starting"} class="bomb">
             <h1>Game starts in</h1>
-            <span>5</span>
+            <span><%= @room.tick %></span>
           </div>
           <div :if={@room.status == "running"} class="bomb">
             <div
