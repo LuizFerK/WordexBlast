@@ -76,6 +76,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(359deg);
   }
@@ -118,8 +119,29 @@
 }
 
 .play div {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: 0.2s;
   transform: rotate(calc(-360deg/var(--x) * var(--i)));
+}
+
+.lives {
+  position: absolute;
+  bottom: -70px;
+  left: 0;
+}
+
+.lives div {
+  width: 14px;
+  height: 14px;
+  background-color: #fff;
+  border-radius: 50%;
+}
+
+.lives div+div {
+  margin-left: 10px;
 }
 
 .bomb {
@@ -140,7 +162,8 @@
   transform: rotate(calc(360deg/var(--x) * var(--i)));
 }
 
-.arrow::after, .arrow::before {
+.arrow::after,
+.arrow::before {
   content: '';
   position: absolute;
   width: 60%;

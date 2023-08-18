@@ -22,7 +22,7 @@ defmodule WordexBlastWeb.PlayLive do
           <div class="play-icon">
             <.user
               :for={{{_user_id, meta}, idx} <- Enum.with_index(@room.players)}
-              username={meta.username}
+              user={meta}
               is_playing={meta.is_playing}
               is_selected={Map.get(elem(@room.selected_player, 1), :id) == meta.id}
               idx={idx}
@@ -36,11 +36,15 @@ defmodule WordexBlastWeb.PlayLive do
           style="text-transform:uppercase; text-align:center"
           autocomplete="off"
           field={@play_form[:input]}
-          placeholder="TYPE! QUICK!"
-          class="!mt-0 font-bold border-none bg-white bg-opacity-5"
+          placeholder={get_placeholder(@current_player_selected, @room.selected_player)}
+          class={[
+            "!mt-0 font-bold border-none bg-white bg-opacity-5",
+            !@current_player_selected && "cursor-not-allowed"
+          ]}
           container_class="flex-1 w-96"
+          disabled={!@current_player_selected}
         />
-        <.button phx-disable-with="Confirming...">
+        <.button disabled={!@current_player_selected} phx-disable-with="Confirming...">
           <.icon name="hero-arrow-right-solid" />
         </.button>
       </.flex_form>
@@ -75,6 +79,10 @@ defmodule WordexBlastWeb.PlayLive do
     """
   end
 
+  defp get_placeholder(_, {"", _}), do: "When the game starts, type here!"
+  defp get_placeholder(true, _), do: "TYPE! QUICK!"
+  defp get_placeholder(false, {_, %{username: username}}), do: "#{username} is playing..."
+
   def user(assigns) do
     ~H"""
     <div
@@ -86,7 +94,12 @@ defmodule WordexBlastWeb.PlayLive do
       style={"--i:#{@idx};--x:#{@user_count}"}
     >
       <div>
-        <%= @username %>
+        <%= @user.username %>
+        <div :if={@is_playing} class="lives">
+          <div />
+          <div class={[@user.lives <= 1 && "opacity-20"]} />
+          <div class={[@user.lives <= 2 && "opacity-20"]} />
+        </div>
       </div>
     </div>
     """
@@ -132,6 +145,7 @@ defmodule WordexBlastWeb.PlayLive do
         room: room,
         room_id: room.id,
         current_player: current_player,
+        current_player_selected: false,
         play_form: play_form,
         user_form: user_form
       )
@@ -155,6 +169,13 @@ defmodule WordexBlastWeb.PlayLive do
   end
 
   def handle_info({:room_updated, room}, socket) do
-    {:noreply, assign(socket, :room, room)}
+    selected_player_id =
+      room.selected_player
+      |> elem(1)
+      |> Map.get(:id, nil)
+
+    current_player_selected = socket.assigns.current_player.id == selected_player_id
+
+    {:noreply, assign(socket, room: room, current_player_selected: current_player_selected)}
   end
 end

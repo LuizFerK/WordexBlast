@@ -7,7 +7,7 @@ defmodule WordexBlast.Rooms do
   def subscribe_to_room(room_id), do: PubSub.subscribe_to_room(room_id)
 
   def track_player(pid, room_id, player) do
-    Players.track_player(pid, room_id, player)
+    Players.track_player(pid, room_id, Map.put(player, :lives, 3))
   end
 
   def list_rooms(), do: Server.call(:list)
