@@ -29,6 +29,30 @@ defmodule WordexBlast.Words do
   end
 
   @doc """
+  Gets a word hint.
+
+  ## Examples
+
+      iex> get_hint()
+      "avr"
+
+  """
+  def get_hint() do
+    id = Enum.random(1..245_366)
+    size = Enum.random([2, 3])
+
+    word =
+      Word
+      |> Repo.get_by(id: id)
+      |> Map.get(:word)
+
+    slice = String.length(word) / size
+    slice = floor(slice)
+
+    String.slice(word, slice..(slice + size - 1))
+  end
+
+  @doc """
   Creates a word.
 
   ## Examples

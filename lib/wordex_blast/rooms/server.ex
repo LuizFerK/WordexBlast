@@ -1,6 +1,7 @@
 defmodule WordexBlast.Rooms.Server do
   use GenServer
 
+  alias WordexBlast.Words
   alias WordexBlast.Rooms.Players
   alias WordexBlast.Rooms.PubSub, as: RoomsPubSub
 
@@ -171,7 +172,7 @@ defmodule WordexBlast.Rooms.Server do
     room =
       rooms
       |> Map.get(room_id)
-      |> Map.put(:tick, "GO!")
+      |> Map.merge(%{tick: "GO!", hint: Words.get_hint()})
 
     rooms = Map.put(rooms, room_id, room)
 
@@ -220,26 +221,67 @@ defmodule WordexBlast.Rooms.Server do
     room = Map.get(rooms, room_id)
 
     if room.status == "running" do
+      {last_player, _} = Enum.find(room.players, &(Map.get(elem(&1, 1), :id) == last_player_id))
+
       selected_player =
         room.players
         |> Enum.filter(&Map.get(elem(&1, 1), :is_playing))
         |> Enum.filter(&(Map.get(elem(&1, 1), :id) != last_player_id))
         |> Enum.random()
 
-      room = Map.put(room, :selected_player, selected_player)
+      hint = Words.get_hint()
+
+      players =
+        room.players
+        |> Map.update!(last_player, &update_last_player(&1, &1.lives - 1))
+
+      room = Map.merge(room, %{selected_player: selected_player, players: players, hint: hint})
+      rooms = Map.put(rooms, room_id, room)
 
       RoomsPubSub.broadcast_room(room, :room_updated)
 
-      server_pid = self()
+      active_players = Enum.filter(players, &Map.get(elem(&1, 1), :is_playing))
+      is_finished = length(active_players) == 1
 
-      Task.start(fn ->
-        :timer.sleep(5000)
-        send(server_pid, {:next_round, elem(selected_player, 1).id, room_id})
-      end)
+      rooms =
+        if is_finished do
+          tick_id = Ecto.UUID.generate()
+
+          players =
+            players
+            |> Enum.map(fn {k, v} -> {k, Map.merge(v, %{lives: 3, is_playing: true})} end)
+            |> Map.new()
+
+          room = Map.merge(room, %{status: "finished", players: players, selected_player: hd(active_players), tick_id: tick_id})
+          RoomsPubSub.broadcast_room(room, :room_updated)
+          send(self(), {:update_room_status, "starting", "starting", room.id, tick_id, 10})
+
+          Map.put(rooms, room_id, room)
+        else
+          room = Map.merge(room, %{selected_player: selected_player, players: players, hint: hint})
+          RoomsPubSub.broadcast_room(room, :room_updated)
+
+          server_pid = self()
+
+          Task.start(fn ->
+            :timer.sleep(5000)
+            send(server_pid, {:next_round, elem(selected_player, 1).id, room_id})
+          end)
+
+          Map.put(rooms, room_id, room)
+        end
 
       {:noreply, rooms}
     else
       {:noreply, rooms}
     end
+  end
+
+  defp update_last_player(last_player, 0) do
+    Map.merge(last_player, %{lives: 0, is_playing: false})
+  end
+
+  defp update_last_player(last_player, lives) do
+    Map.put(last_player, :lives, lives)
   end
 end

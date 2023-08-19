@@ -13,11 +13,22 @@ defmodule WordexBlastWeb.PlayLive do
             <h1>Game starts in</h1>
             <span><%= @room.tick %></span>
           </div>
-          <div :if={@room.status == "running"} class="bomb">
+          <div :if={@room.status == "running"} class="bomb bomb_hint">
+            <span
+              class="text-black z-10 text-2xl mt-1"
+              style="text-transform:uppercase;"
+            >
+              <%= @room.hint %>
+            </span>
+            <img alt="Bomb" src="/images/white_logo.svg" width="114" />
             <div
               class="arrow"
               style={"--i:#{String.to_integer(elem(@room.selected_player, 0)) - 1};--x:#{Enum.count(@room.players)}"}
             />
+          </div>
+          <div :if={@room.status == "finished"} class="bomb">
+            The winner is <%= elem(@room.selected_player, 1).username %>!
+            <%= @room.tick %>
           </div>
           <div class="play-icon">
             <.user
@@ -158,14 +169,16 @@ defmodule WordexBlastWeb.PlayLive do
   end
 
   def handle_event("set_user", %{"username" => username}, socket) do
-    Rooms.track_player(self(), socket.assigns.room_id, %{
+    user = %{
       id: Ecto.UUID.generate(),
       idx: (socket.assigns.room.players |> Map.keys() |> length()) + 1,
       username: username,
       is_playing: !(socket.assigns.room.status == "running")
-    })
+    }
 
-    {:noreply, assign(socket, :current_player, %{email: username})}
+    Rooms.track_player(self(), socket.assigns.room_id, user)
+
+    {:noreply, assign(socket, :current_player, user)}
   end
 
   def handle_info({:room_updated, room}, socket) do
