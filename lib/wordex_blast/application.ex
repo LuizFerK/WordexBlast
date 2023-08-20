@@ -17,7 +17,7 @@ defmodule WordexBlast.Application do
       # Start Presence
       WordexBlastWeb.Presence,
       # Rooms server
-      WordexBlast.Rooms.Server,
+      WordexBlast.Rooms.Rooms,
       # Start Finch
       {Finch, name: WordexBlast.Finch},
       # Start the Endpoint (http/https)

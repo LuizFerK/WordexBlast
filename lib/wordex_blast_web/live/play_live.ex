@@ -14,10 +14,7 @@ defmodule WordexBlastWeb.PlayLive do
             <span><%= @room.tick %></span>
           </div>
           <div :if={@room.status == "running"} class="bomb bomb_hint">
-            <span
-              class="text-black z-10 text-2xl mt-1"
-              style="text-transform:uppercase;"
-            >
+            <span class="text-black z-10 text-2xl mt-1" style="text-transform:uppercase;">
               <%= @room.hint %>
             </span>
             <img alt="Bomb" src="/images/white_logo.svg" width="114" />
@@ -27,8 +24,7 @@ defmodule WordexBlastWeb.PlayLive do
             />
           </div>
           <div :if={@room.status == "finished"} class="bomb">
-            The winner is <%= elem(@room.selected_player, 1).username %>!
-            <%= @room.tick %>
+            The winner is <%= elem(@room.selected_player, 1).username %>! <%= @room.tick %>
           </div>
           <div class="play-icon">
             <.user
@@ -48,10 +44,12 @@ defmodule WordexBlastWeb.PlayLive do
           autocomplete="off"
           field={@play_form[:input]}
           placeholder={get_placeholder(@current_player_selected, @room.selected_player)}
-          class={[
-            "!mt-0 font-bold border-none bg-white bg-opacity-5",
-            !@current_player_selected && "cursor-not-allowed"
-          ]}
+          class={
+            class_join([
+              {true, "!mt-0 font-bold border-none bg-white bg-opacity-5"},
+              {!@current_player_selected, "cursor-not-allowed"}
+            ])
+          }
           container_class="flex-1 w-96"
           disabled={!@current_player_selected}
         />
@@ -122,7 +120,7 @@ defmodule WordexBlastWeb.PlayLive do
     |> mount_room(socket)
   end
 
-  defp mount_room(nil, socket) do
+  defp mount_room({:error, :not_found}, socket) do
     socket =
       socket
       |> put_flash(:error, "This room does not exists...")
@@ -190,5 +188,12 @@ defmodule WordexBlastWeb.PlayLive do
     current_player_selected = socket.assigns.current_player.id == selected_player_id
 
     {:noreply, assign(socket, room: room, current_player_selected: current_player_selected)}
+  end
+
+  defp class_join(classes) do
+    classes
+    |> Enum.filter(&elem(&1, 0))
+    |> Enum.map(&elem(&1, 1))
+    |> Enum.join(" ")
   end
 end
