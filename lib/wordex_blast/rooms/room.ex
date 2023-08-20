@@ -31,6 +31,12 @@ defmodule WordexBlast.Rooms.Room do
     {:reply, room, room}
   end
 
+  # Player submit a valid answer
+  def handle_call({:validate_answer, answer}, _, room) do
+    room = validate_answer(answer, room)
+    {:reply, room, room}
+  end
+
   # Players tracking
 
   def handle_info(%{event: "presence_diff", payload: diff, topic: "players:" <> _}, room) do
@@ -61,8 +67,8 @@ defmodule WordexBlast.Rooms.Room do
     do: start_game(tick_id, room)
 
   # Next round
-  def handle_info({:next_round, last_player_id}, room),
-    do: next_round(last_player_id, room)
+  def handle_info({:next_round, last_player_id, tick_id, validation}, room),
+    do: next_round(last_player_id, tick_id, validation, room)
 
   def handle_info(a, room) do
     IO.inspect(a)
@@ -76,19 +82,32 @@ defmodule WordexBlast.Rooms.Room do
     {:noreply, room}
   end
 
-  defp update_room(player_count, players, room) when player_count < 2 do
-    room = Map.merge(room, %{players: players, status: "waiting", selected_player: {"", %{}}, tick_id: nil})
+  defp update_room(1, players, room) do
+    room =
+      Map.merge(room, %{
+        players: players,
+        status: "waiting",
+        selected_player: {"", %{}},
+        tick_id: nil
+      })
+
     PubSub.broadcast_room(room, :room_updated)
 
     {:noreply, room}
   end
 
-  defp update_room(_, players, room) do
+  defp update_room(_, players, room) when room.status == "waiting" or room.status == "starting" do
     tick_id = Ecto.UUID.generate()
 
     room = Map.merge(room, %{players: players, status: "starting", tick_id: tick_id})
+    PubSub.broadcast_room(room, :room_updated)
 
     send(self(), {:update_room_status, "starting", room.status, tick_id, 5})
+    {:noreply, room}
+  end
+
+  defp update_room(_, players, room) do
+    room = Map.put(room, :players, players)
     PubSub.broadcast_room(room, :room_updated)
 
     {:noreply, room}
@@ -96,7 +115,7 @@ defmodule WordexBlast.Rooms.Room do
 
   # # Game status
 
-  defp next_tick(tick_id, tick, room) do
+  defp next_tick(tick_id, tick, room) when tick_id == room.tick_id do
     room = Map.put(room, :tick, tick)
     PubSub.broadcast_room(room, :room_updated)
 
@@ -109,6 +128,8 @@ defmodule WordexBlast.Rooms.Room do
 
     {:noreply, room}
   end
+
+  defp next_tick(_, _, room), do: {:noreply, room}
 
   defp starting_game(tick_id, room) do
     room = Map.merge(room, %{tick: "GO!", hint: Words.get_hint()})
@@ -131,26 +152,32 @@ defmodule WordexBlast.Rooms.Room do
   defp start_on_valid_tick(room, false), do: {:noreply, room}
 
   defp start_on_valid_tick(room, true) do
+    tick_id = Ecto.UUID.generate()
+
     selected_player =
       room.players
       |> Enum.filter(&Map.get(elem(&1, 1), :is_playing))
       |> Enum.random()
 
-    room = Map.merge(room, %{status: "running", selected_player: selected_player})
+    room =
+      Map.merge(room, %{status: "running", selected_player: selected_player, tick_id: tick_id})
+
     PubSub.broadcast_room(room, :room_updated)
 
     server_pid = self()
 
     Task.start(fn ->
       :timer.sleep(5000)
-      send(server_pid, {:next_round, elem(selected_player, 1).id})
+      send(server_pid, {:next_round, elem(selected_player, 1).id, tick_id, :invalid})
     end)
 
     {:noreply, room}
   end
 
-  defp next_round(last_player_id, room) when room.status == "running" do
-    {last_player, _} = Enum.find(room.players, &(Map.get(elem(&1, 1), :id) == last_player_id))
+  defp next_round(last_player_id, tick_id, validation, room)
+       when room.status == "running" and tick_id == room.tick_id do
+    {last_player, _} =
+      Enum.find(room.players, {nil, %{}}, &(Map.get(elem(&1, 1), :id) == last_player_id))
 
     selected_player =
       room.players
@@ -161,8 +188,12 @@ defmodule WordexBlast.Rooms.Room do
     hint = Words.get_hint()
 
     players =
-      room.players
-      |> Map.update!(last_player, &update_last_player(&1, &1.lives - 1))
+      if last_player do
+        room.players
+        |> Map.update!(last_player, &update_last_player(&1, &1.lives - 1, validation))
+      else
+        room.players
+      end
 
     room = Map.merge(room, %{selected_player: selected_player, players: players, hint: hint})
     PubSub.broadcast_room(room, :room_updated)
@@ -179,20 +210,36 @@ defmodule WordexBlast.Rooms.Room do
           |> Enum.map(fn {k, v} -> {k, Map.merge(v, %{lives: 3, is_playing: true})} end)
           |> Map.new()
 
-        room = Map.merge(room, %{status: "finished", players: players, selected_player: hd(active_players), tick_id: tick_id})
+        room =
+          Map.merge(room, %{
+            status: "finished",
+            players: players,
+            selected_player: hd(active_players),
+            tick_id: tick_id
+          })
+
         PubSub.broadcast_room(room, :room_updated)
         send(self(), {:update_room_status, "starting", "starting", tick_id, 10})
 
         room
       else
-        room = Map.merge(room, %{selected_player: selected_player, players: players, hint: hint})
+        tick_id = Ecto.UUID.generate()
+
+        room =
+          Map.merge(room, %{
+            selected_player: selected_player,
+            players: players,
+            hint: hint,
+            tick_id: tick_id
+          })
+
         PubSub.broadcast_room(room, :room_updated)
 
         server_pid = self()
 
         Task.start(fn ->
           :timer.sleep(5000)
-          send(server_pid, {:next_round, elem(selected_player, 1).id})
+          send(server_pid, {:next_round, elem(selected_player, 1).id, tick_id, :invalid})
         end)
 
         room
@@ -201,13 +248,22 @@ defmodule WordexBlast.Rooms.Room do
     {:noreply, room}
   end
 
-  defp next_round(_, room), do: {:noreply, room}
+  defp next_round(_, _, _, room), do: {:noreply, room}
 
-  defp update_last_player(last_player, 0) do
+  defp update_last_player(last_player, _, :valid), do: last_player
+
+  defp update_last_player(last_player, 0, _) do
     Map.merge(last_player, %{lives: 0, is_playing: false})
   end
 
-  defp update_last_player(last_player, lives) do
+  defp update_last_player(last_player, lives, _) do
     Map.put(last_player, :lives, lives)
+  end
+
+  defp validate_answer(_, room) do
+    tick_id = Ecto.UUID.generate()
+    send(self(), {:next_round, elem(room.selected_player, 1).id, tick_id, :valid})
+
+    Map.put(room, :tick_id, tick_id)
   end
 end

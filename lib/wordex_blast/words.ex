@@ -25,8 +25,11 @@ defmodule WordexBlast.Words do
   def get_word(word) do
     Word
     |> Repo.get_by(word: word)
-    |> Map.get(:word)
+    |> handle_get_word()
   end
+
+  defp handle_get_word(nil), do: nil
+  defp handle_get_word(word), do: Map.get(word, :word)
 
   @doc """
   Gets a word hint.

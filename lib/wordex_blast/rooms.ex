@@ -22,4 +22,8 @@ defmodule WordexBlast.Rooms do
   end
 
   def get_room(room_id), do: Room.call(:get, room_id)
+
+  def validate_answer(answer, room_id) do
+    Room.call({:validate_answer, answer}, room_id)
+  end
 end

@@ -1,4 +1,5 @@
 defmodule WordexBlastWeb.PlayLive do
+  alias WordexBlast.Words
   use WordexBlastWeb, :live_view
 
   alias WordexBlast.Rooms
@@ -38,11 +39,11 @@ defmodule WordexBlastWeb.PlayLive do
           </div>
         </div>
       </section>
-      <.flex_form for={@play_form} id="play_form" phx-submit="">
+      <.flex_form for={@play_form} id="play_form" phx-submit="answer">
         <.input
           style="text-transform:uppercase; text-align:center"
           autocomplete="off"
-          field={@play_form[:input]}
+          field={@play_form[:answer]}
           placeholder={get_placeholder(@current_player_selected, @room.selected_player)}
           class={
             class_join([
@@ -53,7 +54,7 @@ defmodule WordexBlastWeb.PlayLive do
           container_class="flex-1 w-96"
           disabled={!@current_player_selected}
         />
-        <.button disabled={!@current_player_selected} phx-disable-with="Confirming...">
+        <.button disabled={!@current_player_selected}>
           <.icon name="hero-arrow-right-solid" />
         </.button>
       </.flex_form>
@@ -103,7 +104,7 @@ defmodule WordexBlastWeb.PlayLive do
       style={"--i:#{@idx};--x:#{@user_count}"}
     >
       <div>
-        <%= @user.username %>
+        <span><%= @user.username %></span>
         <div :if={@is_playing} class="lives">
           <div />
           <div class={[@user.lives <= 1 && "opacity-20"]} />
@@ -145,7 +146,7 @@ defmodule WordexBlastWeb.PlayLive do
       })
     end
 
-    play_form = to_form(%{"input" => ""})
+    play_form = to_form(%{"answer" => ""})
     user_form = to_form(%{"username" => ""})
 
     socket =
@@ -179,13 +180,23 @@ defmodule WordexBlastWeb.PlayLive do
     {:noreply, assign(socket, :current_player, user)}
   end
 
+  def handle_event("answer", %{"answer" => answer}, socket) do
+    with false <- is_nil(Words.get_word(answer)),
+         true <- String.contains?(answer, socket.assigns.room.hint) do
+      Rooms.validate_answer(answer, socket.assigns.room_id)
+    end
+
+    {:noreply, assign(socket, :play_form, to_form(%{"answer" => nil}))}
+  end
+
   def handle_info({:room_updated, room}, socket) do
     selected_player_id =
       room.selected_player
       |> elem(1)
       |> Map.get(:id, nil)
 
-    current_player_selected = socket.assigns.current_player.id == selected_player_id
+    current_player_id = Map.get(socket.assigns.current_player || %{}, :id)
+    current_player_selected = current_player_id == selected_player_id
 
     {:noreply, assign(socket, room: room, current_player_selected: current_player_selected)}
   end
