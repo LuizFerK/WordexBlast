@@ -41,7 +41,7 @@ defmodule WordexBlast.Words do
 
   """
   def get_hint() do
-    id = Enum.random(1..245_366)
+    id = Enum.random(1..245_364)
     size = Enum.random([2, 3])
 
     word =
