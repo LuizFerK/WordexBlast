@@ -141,7 +141,7 @@ defmodule WordexBlastWeb.PlayLive do
       Rooms.track_player(self(), room.id, %{
         id: current_player.id,
         idx: (room.players |> Map.keys() |> length()) + 1,
-        username: current_player.email |> String.split("@") |> hd() |> String.capitalize(),
+        username: current_player.nickname,
         is_playing: !(room.status == "running")
       })
     end

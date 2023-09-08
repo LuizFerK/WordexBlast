@@ -1,19 +1,32 @@
-<nav class="sticky top-4 z-10 mx-4 mb-8 flex items-center px-8 bg-white bg-opacity-5 drop-shadow-lg backdrop-blur-lg h-14 rounded-lg justify-between">
-  <.link navigate={~p"/"} class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700">
-    <img alt="Bomb" src="images/white_logo.svg" width="20" />
+<nav class="sticky top-6 z-10 mx-40 mb-8 flex items-center pr-6 pl-2 bg-white bg-opacity-5 drop-shadow-lg backdrop-blur-lg h-14 rounded-xl justify-between">
+  <.link navigate={~p"/"} class="mt-1">
+    <img alt="Wordex Blast" src="images/logo_name.svg" width="110" />
   </.link>
   <%= if assigns[:room_id], do: "Room: #{assigns[:room_id]}" %>
   <ul class="flex gap-4">
     <%= if @current_user do %>
-      <li class="text-[0.8125rem] leading-6">
-        <%= @current_user.email %>
+      <li class="text-[0.8125rem] leading-6 mr-8 font-bold flex align-center">
+        <img alt="Player avatar" src="images/avatar_1.png" class="w-6 mr-3 -mt-1" />
+        <span><%= @current_user.nickname %></span>
+      </li>
+      <li>
+        <span class="text-sm mt-1">🇧🇷</span>
+        <.icon name="hero-chevron-down" class="h-4 w-4" />
+      </li>
+      <li class="flex justify-center">
+        <label class="switch">
+          <input type="checkbox">
+          <div class="slider">
+            <.icon name="hero-moon-solid" class="h-3 w-3" />
+          </div>
+        </label>
       </li>
       <li>
         <.link
           navigate={~p"/users/settings"}
           class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
         >
-          Settings
+          <.icon name="hero-cog-8-tooth" class="h-[22px] w-[22px]" />
         </.link>
       </li>
       <li>
@@ -22,24 +35,24 @@
           method="delete"
           class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
         >
-          Log out
+          <.icon name="hero-arrow-left-on-rectangle" class="h-[22px] w-[22px]" />
         </.link>
       </li>
     <% else %>
-      <li>
-        <.link
-          navigate={~p"/users/register"}
-          class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
-        >
-          Register
-        </.link>
-      </li>
       <li>
         <.link
           navigate={~p"/users/log_in"}
           class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
         >
           Log in
+        </.link>
+      </li>
+      <li>
+        <.link
+          navigate={~p"/users/register"}
+          class="text-[0.8125rem] leading-6 font-semibold bg-white text-black p-2 rounded-lg"
+        >
+          Register
         </.link>
       </li>
     <% end %>

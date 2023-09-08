@@ -5,6 +5,12 @@ defmodule WordexBlastWeb.AppLive do
 
   def render(assigns) do
     ~H"""
+    <img
+      alt="Wordex Blast logo"
+      src="images/logo.svg"
+      width="300"
+      class="mx-auto -mt-[55px] -mb-[35px]"
+    />
     <div class="flex justify-center gap-8 pb-8">
       <div class="flex-1 max-w-screen-sm">
         <header class="border-dashed border-2 border-slate-50 rounded-lg p-4 border-opacity-5">
@@ -37,10 +43,15 @@ defmodule WordexBlastWeb.AppLive do
           </div>
         </header>
         <section>
-          <h1 class="mt-4 font-bold text-2xl mb-2">Available servers</h1>
-          <span :if={@n_rooms == 0}>
-            Oops, looks like there is no servers available right now. Create one above!
-          </span>
+          <h1 class="mt-8 font-bold text-xl mb-2">Available rooms</h1>
+          <div :if={@n_rooms == 0} class="flex flex-col items-center">
+            <img alt="Space and planets" src="images/empty.svg" width="200" class="mx-auto" />
+            <strong class="text-2xl">Oops...</strong>
+            <p class="mt-2 mb-4">
+              It looks like there are no rooms available to join
+            </p>
+            <.button>Create room</.button>
+          </div>
           <ul id="rooms" phx-update="stream" class="grid grid-cols-3 gap-3">
             <.link
               :for={{room_id, room} <- @streams.rooms}
@@ -84,7 +95,7 @@ defmodule WordexBlastWeb.AppLive do
                 Welcome back!
               </span>
               <span class="font-bold">
-                <%= get_username(@current_user.email) %>
+                <%= @current_user.nickname %>
               </span>
               <div class="flex items-center gap-2 mt-4">
                 <.icon name="hero-trophy-solid bg-yellow-400" />
@@ -156,12 +167,5 @@ defmodule WordexBlastWeb.AppLive do
   def handle_info({:room_deleted, room}, socket) do
     socket = update(socket, :n_rooms, &(&1 - 1))
     {:noreply, stream_delete(socket, :rooms, room)}
-  end
-
-  defp get_username(email) do
-    email
-    |> String.split("@")
-    |> hd()
-    |> String.capitalize()
   end
 end
