@@ -36,7 +36,7 @@ defmodule WordexBlastWeb.AppLive do
                 class="!mt-0 !border-opacity-5 font-bold"
                 container_class="flex-1"
               />
-              <.button phx-disable-with="Confirming...">
+              <.button class="bg-white">
                 <.icon name="hero-arrow-right-solid" />
               </.button>
             </.flex_form>
@@ -57,15 +57,15 @@ defmodule WordexBlastWeb.AppLive do
               :for={{room_id, room} <- @streams.rooms}
               id={room_id}
               navigate={~p"/play/#{room.id}"}
-              class="bg-slate-50 bg-opacity-5 rounded-xl p-4 py-6 text-center flex flex-col items-center font-bold"
+              class="bg-slate-50 bg-opacity-5 rounded-3xl p-3 py-6 text-center flex flex-col items-center font-bold"
             >
-              <div class="w-20 h-20 bg-white rounded-full" />
-              <span class="my-4"><%= room.id %></span>
+              <span>🇧🇷</span>
+              <span class="mb-4 mt-3 font-bold text-3xl"><%= room.id %></span>
               <div class="flex items-center">
-                <div class="w-8 h-8 bg-white rounded-full z-20" />
-                <div class="w-8 h-8 bg-black rounded-full z-10 -ml-4" />
-                <div class="w-8 h-8 bg-white rounded-full -ml-4" />
-                <span class="ml-2">+4</span>
+                <img alt="Player 1 avatar" src="images/avatar_1.png" class="w-7 h-8 z-20 -mt-1" />
+                <img alt="Player 1 avatar" src="images/avatar_1.png" class="w-7 h-8 z-10 -ml-4 -mt-1" />
+                <img alt="Player 1 avatar" src="images/avatar_1.png" class="w-7 h-8 -ml-4 -mt-1" />
+                <span class="ml-2 font-light">+4</span>
               </div>
             </.link>
           </ul>
@@ -144,6 +144,10 @@ defmodule WordexBlastWeb.AppLive do
      |> assign(:n_rooms, length(rooms))
      |> assign(:leaderboard, Enum.with_index(["User 1", "User 2", "User 3", "User 4", "User 5"]))
      |> stream(:rooms, rooms), temporary_assigns: [form: nil]}
+  end
+
+  def handle_event("enter_room", %{"room_id" => ""}, socket) do
+    {:noreply, socket}
   end
 
   def handle_event("enter_room", %{"room_id" => room_id}, socket) do

@@ -43,6 +43,7 @@ defmodule WordexBlastWeb.PlayLive do
         <.input
           style="text-transform:uppercase; text-align:center"
           autocomplete="off"
+          autofocus
           field={@play_form[:answer]}
           placeholder={get_placeholder(@current_player_selected, @room.selected_player)}
           class={

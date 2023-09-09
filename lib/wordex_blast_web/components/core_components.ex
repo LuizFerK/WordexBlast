@@ -272,7 +272,7 @@ defmodule WordexBlastWeb.CoreComponents do
       type={@type}
       class={[
         "phx-submit-loading:opacity-75 rounded-xl bg-slate-50 py-2 px-3",
-        "text-sm font-semibold leading-6 text-black active:text-black/80",
+        "text-sm font-semibold leading-6 text-black active:text-black/80 flex flex-col align-center justify-center",
         @disabled && "opacity-20 cursor-not-allowed",
         !@disabled && "hover:bg-slate-300",
         @class
