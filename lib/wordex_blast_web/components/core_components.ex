@@ -121,7 +121,7 @@ defmodule WordexBlastWeb.CoreComponents do
       id={@id}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
-      class="fixed top-8 right-8 w-80 sm:w-96 z-50 rounded-lg p-3 mt-20 bg-white bg-opacity-5 text-white"
+      class="fixed top-8 right-8 w-80 sm:w-96 z-50 rounded-xl p-3 mt-20 bg-white bg-opacity-5 text-white"
       {@rest}
     >
       <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
@@ -271,7 +271,7 @@ defmodule WordexBlastWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-slate-50 py-2 px-3",
+        "phx-submit-loading:opacity-75 rounded-xl bg-slate-50 py-2 px-3",
         "text-sm font-semibold leading-6 text-black active:text-black/80",
         @disabled && "opacity-20 cursor-not-allowed",
         !@disabled && "hover:bg-slate-300",
@@ -400,7 +400,7 @@ defmodule WordexBlastWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "mt-2 block w-full rounded-lg text-slate-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "mt-2 block w-full rounded-xl text-slate-900 focus:ring-0 sm:text-sm sm:leading-6",
           "min-h-[6rem] phx-no-feedback:border-slate-300 phx-no-feedback:focus:border-slate-400",
           @errors == [] && "border-slate-300 focus:border-slate-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
@@ -423,7 +423,7 @@ defmodule WordexBlastWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-slate-50 focus:ring-0 sm:text-sm sm:leading-6 border-2",
+          "mt-2 block w-full rounded-xl text-slate-50 focus:ring-0 sm:text-sm sm:leading-6 border-2",
           "phx-no-feedback:border-slate-300 phx-no-feedback:focus:border-slate-400 bg-transparent",
           @errors == [] && "border-slate-300 focus:border-slate-400",
           @errors != [] && "border-rose-400 focus:border-rose-400",

@@ -11,21 +11,21 @@ defmodule WordexBlastWeb.AppLive do
       width="300"
       class="mx-auto -mt-[55px] -mb-[35px]"
     />
-    <div class="flex justify-center gap-8 pb-8">
+    <div class="flex justify-center gap-8 pb-8 px-12">
       <div class="flex-1 max-w-screen-sm">
-        <header class="border-dashed border-2 border-slate-50 rounded-lg p-4 border-opacity-5">
+        <header class="border-dashed border-2 border-slate-50 rounded-3xl p-4 border-opacity-5">
           <div class="flex gap-2">
             <button
-              class="text-center cursor-pointer bg-white bg-opacity-5 drop-shadow-lg rounded-lg py-2 flex-1 font-bold text-lg hover:bg-white hover:text-black"
+              class="text-center cursor-pointer bg-white bg-opacity-5 drop-shadow-lg rounded-xl py-2 flex-1 font-bold text-lg hover:bg-white hover:text-black"
               phx-click="create_room"
             >
               Create room
             </button>
-            <span class="text-center bg-white drop-shadow-lg rounded-lg py-2 flex-1 font-bold text-lg text-black cursor-default">
+            <span class="text-center bg-white drop-shadow-lg rounded-xl py-2 flex-1 font-bold text-lg text-black cursor-default">
               Play
             </span>
           </div>
-          <div class="bg-slate-50 bg-opacity-5 rounded-lg p-4 mt-2">
+          <div class="bg-slate-50 bg-opacity-5 rounded-2xl p-4 mt-2">
             <.flex_form for={@form} id="confirmation_form" phx-submit="enter_room">
               <.input
                 maxlength="4"
@@ -47,7 +47,7 @@ defmodule WordexBlastWeb.AppLive do
           <div :if={@n_rooms == 0} class="flex flex-col items-center">
             <img alt="Space and planets" src="images/empty.svg" width="200" class="mx-auto" />
             <strong class="text-2xl">Oops...</strong>
-            <p class="mt-2 mb-4">
+            <p class="mt-2 mb-4 text-center">
               It looks like there are no rooms available to join
             </p>
             <.button>Create room</.button>
@@ -57,7 +57,7 @@ defmodule WordexBlastWeb.AppLive do
               :for={{room_id, room} <- @streams.rooms}
               id={room_id}
               navigate={~p"/play/#{room.id}"}
-              class="bg-slate-50 bg-opacity-5 rounded-lg p-4 py-6 text-center flex flex-col items-center font-bold"
+              class="bg-slate-50 bg-opacity-5 rounded-xl p-4 py-6 text-center flex flex-col items-center font-bold"
             >
               <div class="w-20 h-20 bg-white rounded-full" />
               <span class="my-4"><%= room.id %></span>
@@ -72,16 +72,16 @@ defmodule WordexBlastWeb.AppLive do
         </section>
       </div>
       <aside class="h-full sticky top-[88px]">
-        <section class="border-dashed border-2 border-slate-50 rounded-lg p-4 border-opacity-5 h-min">
-          <div class="bg-slate-50 bg-opacity-5 rounded-lg w-60 p-4 text-center text-xs">
-            <.icon name="hero-user-solid my-4" />
+        <section class="border-dashed border-2 border-slate-50 rounded-3xl p-4 border-opacity-5 h-min">
+          <div class="bg-slate-50 bg-opacity-5 rounded-2xl w-60 p-4 text-center text-xs">
             <div :if={!@current_user} class="flex flex-col items-center">
+              <.icon name="hero-user-solid my-4" />
               <span class="text-sm">
                 Connect to your account to enjoy 100% of the game experience!
               </span>
               <.link
                 navigate={~p"/users/log_in"}
-                class="my-4 p-3 rounded-lg w-full bg-slate-50 text-black font-bold text-sm"
+                class="my-4 p-3 rounded-xl w-full bg-slate-50 text-black font-bold text-sm"
               >
                 Login
               </.link>
@@ -90,16 +90,17 @@ defmodule WordexBlastWeb.AppLive do
                 <.link navigate={~p"/users/register"} class="font-bold">SignUp</.link>
               </span>
             </div>
-            <div :if={@current_user} class="flex flex-col items-center text-sm pb-3">
+            <div :if={@current_user} class="flex flex-col items-center text-sm py-3">
               <span>
                 Welcome back!
               </span>
-              <span class="font-bold">
+              <img alt="Player avatar" src="images/avatar_1.png" class="w-20 my-4" />
+              <span class="font-bold text-lg">
                 <%= @current_user.nickname %>
               </span>
               <div class="flex items-center gap-2 mt-4">
                 <.icon name="hero-trophy-solid bg-yellow-400" />
-                <span>200</span>
+                <span>200 pts</span>
               </div>
             </div>
           </div>
@@ -109,7 +110,7 @@ defmodule WordexBlastWeb.AppLive do
           <ul>
             <li
               :for={{user, idx} <- @leaderboard}
-              class="bg-slate-50 rounded-lg bg-opacity-5 p-4 px-6 flex justify-between items-center mt-3"
+              class="bg-slate-50 rounded-2xl bg-opacity-5 p-4 px-6 flex justify-between items-center mt-3"
             >
               <div class="flex items-center">
                 <.icon name="hero-user-solid mr-3" />
