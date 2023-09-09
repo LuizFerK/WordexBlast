@@ -18,7 +18,7 @@ defmodule WordexBlastWeb.PlayLive do
             <span class="text-black z-10 text-2xl mt-1" style="text-transform:uppercase;">
               <%= @room.hint %>
             </span>
-            <img alt="Bomb" src="/images/white_logo.svg" width="114" />
+            <img alt="Bomb" src="/images/bomb.svg" width="300" />
             <div
               class="arrow"
               style={"--i:#{String.to_integer(elem(@room.selected_player, 0)) - 1};--x:#{Enum.count(@room.players)}"}
@@ -98,18 +98,28 @@ defmodule WordexBlastWeb.PlayLive do
     ~H"""
     <div
       class={[
-        "w-28 h-28 rounded-full bg-white text-black flex items-center justify-center font-bold play",
+        "w-28 h-28 rounded-full text-black flex items-center justify-center font-bold play",
         !@is_playing && "opacity-30",
-        @is_selected && "!bg-black text-white"
+        @is_selected && "text-white"
       ]}
       style={"--i:#{@idx};--x:#{@user_count}"}
     >
       <div>
-        <span><%= @user.username %></span>
-        <div :if={@is_playing} class="lives">
-          <div />
-          <div class={[@user.lives <= 1 && "opacity-20"]} />
-          <div class={[@user.lives <= 2 && "opacity-20"]} />
+        <img alt="Player icon" src="/images/avatar_1.png" class="w-[90px] m-auto" />
+        <div class="user_content">
+          <header>
+            <div :if={@is_playing}>
+              <img alt="Red hearth" src="/images/hearth_fill.svg" />
+              <img :if={@user.lives >= 2} alt="Red hearth" src="/images/hearth_fill.svg" />
+              <img :if={@user.lives >= 3} alt="Red hearth" src="/images/hearth_fill.svg" />
+              <img :if={@user.lives < 2} alt="Red hearth" src="/images/hearth.svg" />
+              <img :if={@user.lives < 3} alt="Red hearth" src="/images/hearth.svg" />
+            </div>
+            <span class="text-white"><%= @user.username %></span>
+          </header>
+          <footer :if={@is_playing}>
+            <span class="text-white">ASPAS</span>
+          </footer>
         </div>
       </div>
     </div>

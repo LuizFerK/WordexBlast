@@ -7,7 +7,7 @@ defmodule WordexBlastWeb.AppLive do
     ~H"""
     <img
       alt="Wordex Blast logo"
-      src="images/logo.svg"
+      src="/images/logo.svg"
       width="300"
       class="mx-auto -mt-[55px] -mb-[35px]"
     />
@@ -45,12 +45,12 @@ defmodule WordexBlastWeb.AppLive do
         <section>
           <h1 class="mt-8 font-bold text-xl mb-2">Available rooms</h1>
           <div :if={@n_rooms == 0} class="flex flex-col items-center">
-            <img alt="Space and planets" src="images/empty.svg" width="200" class="mx-auto" />
+            <img alt="Space and planets" src="/images/empty.svg" width="200" class="mx-auto" />
             <strong class="text-2xl">Oops...</strong>
             <p class="mt-2 mb-4 text-center">
               It looks like there are no rooms available to join
             </p>
-            <.button>Create room</.button>
+            <.button phx-click="create_room">Create room</.button>
           </div>
           <ul id="rooms" phx-update="stream" class="grid grid-cols-3 gap-3">
             <.link
@@ -62,9 +62,9 @@ defmodule WordexBlastWeb.AppLive do
               <span>🇧🇷</span>
               <span class="mb-4 mt-3 font-bold text-3xl"><%= room.id %></span>
               <div class="flex items-center">
-                <img alt="Player 1 avatar" src="images/avatar_1.png" class="w-7 h-8 z-20 -mt-1" />
-                <img alt="Player 1 avatar" src="images/avatar_1.png" class="w-7 h-8 z-10 -ml-4 -mt-1" />
-                <img alt="Player 1 avatar" src="images/avatar_1.png" class="w-7 h-8 -ml-4 -mt-1" />
+                <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 z-20 -mt-1" />
+                <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 z-10 -ml-4 -mt-1" />
+                <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 -ml-4 -mt-1" />
                 <span class="ml-2 font-light">+4</span>
               </div>
             </.link>
@@ -94,7 +94,7 @@ defmodule WordexBlastWeb.AppLive do
               <span>
                 Welcome back!
               </span>
-              <img alt="Player avatar" src="images/avatar_1.png" class="w-20 my-4" />
+              <img alt="Player avatar" src="/images/avatar_1.png" class="w-20 my-4" />
               <span class="font-bold text-lg">
                 <%= @current_user.nickname %>
               </span>

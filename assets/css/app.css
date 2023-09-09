@@ -85,31 +85,45 @@ body {
 }
 
 .play > div {
+  position: relative;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: 0.2s;
   transform: rotate(calc(-360deg/var(--x) * var(--i)));
 }
 
-.lives {
+.user_content {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -18px;
+}
+
+.user_content header > div {
   display: flex;
   position: absolute;
-  bottom: -70px;
+  width: 56px;
+  bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
 }
 
-.lives div {
+.user_content header > div img {
   width: 14px;
   height: 14px;
-  background-color: #fff;
   border-radius: 50%;
 }
 
-.lives div+div {
-  margin-left: 10px;
+.user_content header > div img+img {
+  margin-left: 8px;
+}
+
+.user_content footer {
+  position: absolute;
+  bottom: -138px;
+  font-size: 20px;
+  font-weight: bold;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .bomb {

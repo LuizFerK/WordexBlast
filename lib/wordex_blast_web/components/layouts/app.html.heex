@@ -1,12 +1,12 @@
 <nav class="sticky top-6 z-10 max-xl:mx-12 mx-40 mb-8 flex items-center pr-6 pl-2 bg-white bg-opacity-5 drop-shadow-lg backdrop-blur-lg h-14 rounded-xl justify-between">
   <.link navigate={~p"/"} class="mt-1">
-    <img alt="Wordex Blast" src="images/logo_name.svg" width="110" />
+    <img alt="Wordex Blast" src="/images/logo_name.svg" width="110" />
   </.link>
   <%= if assigns[:room_id], do: "Room: #{assigns[:room_id]}" %>
   <ul class="flex gap-4">
     <%= if @current_user do %>
       <li class="text-sm leading-6 mr-8 font-bold flex align-center">
-        <img alt="Player avatar" src="images/avatar_1.png" class="w-6 mr-3 -mt-1" />
+        <img alt="Player avatar" src="/images/avatar_1.png" class="w-6 mr-3 -mt-1" />
         <span><%= @current_user.nickname %></span>
       </li>
       <li>
