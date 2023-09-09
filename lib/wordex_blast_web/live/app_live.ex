@@ -118,7 +118,6 @@ defmodule WordexBlastWeb.AppLive do
               class="bg-slate-50 rounded-2xl bg-opacity-5 p-4 px-6 flex justify-between items-center mt-3"
             >
               <div class="flex items-center">
-                <%!-- <.icon name="hero-user-solid mr-3" /> --%>
                 <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 -mt-[2px] mr-3" />
                 <span><%= user.nickname %></span>
               </div>

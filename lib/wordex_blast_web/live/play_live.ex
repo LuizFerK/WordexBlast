@@ -6,59 +6,66 @@ defmodule WordexBlastWeb.PlayLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-5xl flex flex-col items-center">
-      <section class="h-[75vh] flex gap-8 items-center">
-        <div class="play-container">
-          <div :if={@room.status == "waiting"} class="bomb">Waiting for players...</div>
-          <div :if={@room.status == "starting"} class="bomb">
-            <h1>Game starts in</h1>
-            <span><%= @room.tick %></span>
+    <div class="flex">
+      <.scoreboard />
+      <div class="mx-auto max-w-5xl flex flex-col items-center">
+        <section class="h-[75vh] flex gap-8 items-center">
+          <div class="play-container">
+            <div :if={@room.status == "waiting"} class="bomb">Waiting for players...</div>
+            <div :if={@room.status == "starting"} class="bomb">
+              <h1>Game starts in</h1>
+              <span><%= @room.tick %></span>
+            </div>
+            <div :if={@room.status == "running"} class="bomb bomb_hint">
+              <div class="timer" />
+              <span class="text-black z-10 text-2xl font-bold" style="text-transform:uppercase;">
+                <%= @room.hint %>
+              </span>
+              <img alt="Bomb" src="/images/bomb.svg" width="400" />
+              <div
+                class="arrow"
+                style={"--i:#{String.to_integer(elem(@room.selected_player, 0)) - 1};--x:#{Enum.count(@room.players)}"}
+              >
+                <img alt="Arrow" src="/images/arrow.svg" />
+              </div>
+            </div>
+            <div :if={@room.status == "finished"} class="bomb">
+              The winner is <%= elem(@room.selected_player, 1).username %>! <%= @room.tick %>
+            </div>
+            <div class="play-icon">
+              <.user
+                :for={{{_user_id, meta}, idx} <- Enum.with_index(@room.players)}
+                user={meta}
+                is_playing={meta.is_playing}
+                is_selected={Map.get(elem(@room.selected_player, 1), :id) == meta.id}
+                idx={idx}
+                user_count={Enum.count(@room.players)}
+              />
+            </div>
           </div>
-          <div :if={@room.status == "running"} class="bomb bomb_hint">
-            <span class="text-black z-10 text-2xl mt-1" style="text-transform:uppercase;">
-              <%= @room.hint %>
-            </span>
-            <img alt="Bomb" src="/images/bomb.svg" width="300" />
-            <div
-              class="arrow"
-              style={"--i:#{String.to_integer(elem(@room.selected_player, 0)) - 1};--x:#{Enum.count(@room.players)}"}
-            />
-          </div>
-          <div :if={@room.status == "finished"} class="bomb">
-            The winner is <%= elem(@room.selected_player, 1).username %>! <%= @room.tick %>
-          </div>
-          <div class="play-icon">
-            <.user
-              :for={{{_user_id, meta}, idx} <- Enum.with_index(@room.players)}
-              user={meta}
-              is_playing={meta.is_playing}
-              is_selected={Map.get(elem(@room.selected_player, 1), :id) == meta.id}
-              idx={idx}
-              user_count={Enum.count(@room.players)}
-            />
-          </div>
-        </div>
-      </section>
-      <.flex_form for={@play_form} id="play_form" phx-submit="answer">
-        <.input
-          style="text-transform:uppercase; text-align:center"
-          autocomplete="off"
-          autofocus
-          field={@play_form[:answer]}
-          placeholder={get_placeholder(@current_player_selected, @room.selected_player)}
-          class={
-            class_join([
-              {true, "!mt-0 font-bold border-none bg-white bg-opacity-5"},
-              {!@current_player_selected, "cursor-not-allowed"}
-            ])
-          }
-          container_class="flex-1 w-96"
-          disabled={!@current_player_selected}
-        />
-        <.button disabled={!@current_player_selected}>
-          <.icon name="hero-arrow-right-solid" class="mt-[1.5px]" />
-        </.button>
-      </.flex_form>
+        </section>
+        <.flex_form for={@play_form} id="play_form" phx-submit="answer">
+          <.input
+            style="text-transform:uppercase; text-align:center"
+            autocomplete="off"
+            autofocus
+            field={@play_form[:answer]}
+            placeholder={get_placeholder(@current_player_selected, @room.selected_player)}
+            class={
+              class_join([
+                {true, "!mt-0 font-bold border-none bg-white bg-opacity-5"},
+                {!@current_player_selected, "cursor-not-allowed"}
+              ])
+            }
+            container_class="flex-1 w-96"
+            disabled={!@current_player_selected}
+          />
+          <.button disabled={!@current_player_selected}>
+            <.icon name="hero-arrow-right-solid" class="mt-[1.5px]" />
+          </.button>
+        </.flex_form>
+      </div>
+      <.words />
     </div>
     <.modal :if={!@current_player} id="setup-user" class="max-w-xl" show keep_open>
       <h1 class="font-bold text-xl mb-4">Welcome to Wordex Blast!</h1>
@@ -118,11 +125,42 @@ defmodule WordexBlastWeb.PlayLive do
             <span class="text-white"><%= @user.username %></span>
           </header>
           <footer :if={@is_playing}>
-            <span class="text-white">ASPAS</span>
+            <%!-- <span class="text-white">ASPAS</span> --%>
           </footer>
         </div>
       </div>
     </div>
+    """
+  end
+
+  def scoreboard(assigns) do
+    ~H"""
+    <ul class="m-auto">
+      <h2 class="text-white font-bold">Scoreboard</h2>
+      <li class="bg-slate-50 rounded-2xl bg-opacity-5 p-4 px-6 flex justify-between items-center mt-3 w-[250px]">
+        <div class="flex items-center">
+          <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 -mt-[2px] mr-3" />
+          <span>test</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <.icon :if={0 == 0} name="hero-trophy-solid bg-yellow-400" />
+          <%!-- <.icon :if={2 == 1} name="hero-trophy-solid bg-slate-300" />
+          <.icon :if={3 == 2} name="hero-trophy-solid bg-amber-800" /> --%>
+          <span>123</span>
+        </div>
+      </li>
+    </ul>
+    """
+  end
+
+  def words(assigns) do
+    ~H"""
+    <ul class="m-auto">
+      <h2 class="text-white font-bold text-right">Used words</h2>
+      <li class="bg-slate-50 rounded-2xl bg-opacity-5 p-4 px-6 flex justify-between items-center mt-3 w-[250px]">
+        <span style="text-transform:uppercase;">test</span>
+      </li>
+    </ul>
     """
   end
 
