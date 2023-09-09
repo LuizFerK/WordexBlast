@@ -8,6 +8,16 @@ defmodule WordexBlast.Accounts do
 
   alias WordexBlast.Accounts.{User, UserToken, UserNotifier}
 
+  def get_leaderboard do
+    query =
+      from(User,
+        order_by: [desc: :points],
+        limit: 5
+      )
+
+    Repo.all(query)
+  end
+
   ## Database getters
 
   @doc """

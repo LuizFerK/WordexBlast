@@ -56,7 +56,7 @@ defmodule WordexBlastWeb.PlayLive do
           disabled={!@current_player_selected}
         />
         <.button disabled={!@current_player_selected}>
-          <.icon name="hero-arrow-right-solid" />
+          <.icon name="hero-arrow-right-solid" class="mt-[1.5px]" />
         </.button>
       </.flex_form>
     </div>

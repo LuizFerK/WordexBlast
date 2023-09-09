@@ -6,6 +6,7 @@ defmodule WordexBlast.Repo.Migrations.CreateUsersAuthTables do
 
     create table(:users) do
       add(:nickname, :string, null: false)
+      add(:points, :integer, default: 0)
       add(:email, :citext, null: false)
       add(:hashed_password, :string, null: false)
       add(:confirmed_at, :naive_datetime)

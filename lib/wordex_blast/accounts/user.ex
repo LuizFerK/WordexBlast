@@ -4,6 +4,7 @@ defmodule WordexBlast.Accounts.User do
 
   schema "users" do
     field(:nickname, :string)
+    field(:points, :integer, default: 0)
     field(:email, :string)
     field(:password, :string, virtual: true, redact: true)
     field(:hashed_password, :string, redact: true)
@@ -37,7 +38,7 @@ defmodule WordexBlast.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:nickname, :email, :password])
+    |> cast(attrs, [:nickname, :points, :email, :password])
     |> validate_length(:nickname, max: 10)
     |> validate_email(opts)
     |> validate_password(opts)

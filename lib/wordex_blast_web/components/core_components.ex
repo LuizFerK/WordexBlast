@@ -125,8 +125,16 @@ defmodule WordexBlastWeb.CoreComponents do
       {@rest}
     >
       <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
-        <.icon :if={@kind == :info} name="hero-information-circle-mini mb-[2px]" class="h-4 w-4 text-green-900" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini mb-[2px]" class="h-4 w-4 text-rose-900" />
+        <.icon
+          :if={@kind == :info}
+          name="hero-information-circle-mini mb-[2px]"
+          class="h-4 w-4 text-green-900"
+        />
+        <.icon
+          :if={@kind == :error}
+          name="hero-exclamation-circle-mini mb-[2px]"
+          class="h-4 w-4 text-rose-900"
+        />
         <%= @title %>
       </p>
       <p class="mt-2 text-sm leading-5"><%= msg %></p>
@@ -272,7 +280,7 @@ defmodule WordexBlastWeb.CoreComponents do
       type={@type}
       class={[
         "phx-submit-loading:opacity-75 rounded-xl bg-slate-50 py-2 px-3",
-        "text-sm font-semibold leading-6 text-black active:text-black/80 flex flex-col align-center justify-center",
+        "text-sm font-semibold leading-6 text-black active:text-black/80 flex align-center justify-center",
         @disabled && "opacity-20 cursor-not-allowed",
         !@disabled && "hover:bg-slate-300",
         @class

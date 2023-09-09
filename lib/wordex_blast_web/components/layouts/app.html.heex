@@ -5,17 +5,17 @@
   <%= if assigns[:room_id], do: "Room: #{assigns[:room_id]}" %>
   <ul class="flex gap-4">
     <%= if @current_user do %>
-      <li class="text-sm leading-6 mr-8 font-bold flex align-center">
+      <li class="text-sm leading-6 mr-4 font-bold flex align-center">
         <img alt="Player avatar" src="/images/avatar_1.png" class="w-6 mr-3 -mt-1" />
         <span><%= @current_user.nickname %></span>
       </li>
-      <li>
+      <li class="cursor-pointer">
         <span class="text-sm mt-1">🇧🇷</span>
         <.icon name="hero-chevron-down" class="h-4 w-4" />
       </li>
       <li class="flex justify-center">
         <label class="switch">
-          <input type="checkbox">
+          <input type="checkbox" />
           <div class="slider">
             <.icon name="hero-moon-solid" class="h-3 w-3" />
           </div>
@@ -39,6 +39,18 @@
         </.link>
       </li>
     <% else %>
+      <li class="cursor-pointer">
+        <span class="text-sm mt-1">🇧🇷</span>
+        <.icon name="hero-chevron-down" class="h-4 w-4" />
+      </li>
+      <li class="flex justify-center">
+        <label class="switch">
+          <input type="checkbox" />
+          <div class="slider">
+            <.icon name="hero-moon-solid" class="h-3 w-3" />
+          </div>
+        </label>
+      </li>
       <li>
         <.link
           navigate={~p"/users/log_in"}
@@ -50,7 +62,7 @@
       <li>
         <.link
           navigate={~p"/users/register"}
-          class="text-[0.8125rem] leading-6 font-semibold bg-white text-black p-2 rounded-xl"
+          class="text-[0.8125rem] leading-6 font-semibold bg-white text-black p-2 rounded-xl px-4"
         >
           Register
         </.link>

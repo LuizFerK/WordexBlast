@@ -27,6 +27,7 @@ defmodule WordexBlast.Release do
   end
 
   defp run_seeds do
+    Seeds.Accounts.run()
     Seeds.PtBrWords.run()
   end
 

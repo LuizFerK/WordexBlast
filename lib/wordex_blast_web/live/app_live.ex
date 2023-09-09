@@ -1,4 +1,5 @@
 defmodule WordexBlastWeb.AppLive do
+  alias WordexBlast.Accounts
   use WordexBlastWeb, :live_view
 
   alias WordexBlast.Rooms
@@ -37,7 +38,7 @@ defmodule WordexBlastWeb.AppLive do
                 container_class="flex-1"
               />
               <.button class="bg-white">
-                <.icon name="hero-arrow-right-solid" />
+                <.icon name="hero-arrow-right-solid" class="mt-1" />
               </.button>
             </.flex_form>
           </div>
@@ -63,7 +64,11 @@ defmodule WordexBlastWeb.AppLive do
               <span class="mb-4 mt-3 font-bold text-3xl"><%= room.id %></span>
               <div class="flex items-center">
                 <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 z-20 -mt-1" />
-                <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 z-10 -ml-4 -mt-1" />
+                <img
+                  alt="Player 1 avatar"
+                  src="/images/avatar_1.png"
+                  class="w-7 h-8 z-10 -ml-4 -mt-1"
+                />
                 <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 -ml-4 -mt-1" />
                 <span class="ml-2 font-light">+4</span>
               </div>
@@ -100,7 +105,7 @@ defmodule WordexBlastWeb.AppLive do
               </span>
               <div class="flex items-center gap-2 mt-4">
                 <.icon name="hero-trophy-solid bg-yellow-400" />
-                <span>200 pts</span>
+                <span><%= @current_user.points %> pts</span>
               </div>
             </div>
           </div>
@@ -113,14 +118,15 @@ defmodule WordexBlastWeb.AppLive do
               class="bg-slate-50 rounded-2xl bg-opacity-5 p-4 px-6 flex justify-between items-center mt-3"
             >
               <div class="flex items-center">
-                <.icon name="hero-user-solid mr-3" />
-                <span><%= user %></span>
+                <%!-- <.icon name="hero-user-solid mr-3" /> --%>
+                <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 -mt-[2px] mr-3" />
+                <span><%= user.nickname %></span>
               </div>
               <div class="flex items-center gap-2">
                 <.icon :if={idx == 0} name="hero-trophy-solid bg-yellow-400" />
                 <.icon :if={idx == 1} name="hero-trophy-solid bg-slate-300" />
                 <.icon :if={idx == 2} name="hero-trophy-solid bg-amber-800" />
-                <span>200</span>
+                <span><%= user.points %></span>
               </div>
             </li>
           </ul>
@@ -136,13 +142,14 @@ defmodule WordexBlastWeb.AppLive do
     end
 
     rooms = Rooms.list_rooms()
+    leaderboard = Accounts.get_leaderboard()
     form = to_form(%{"room_id" => ""})
 
     {:ok,
      socket
      |> assign(:form, form)
      |> assign(:n_rooms, length(rooms))
-     |> assign(:leaderboard, Enum.with_index(["User 1", "User 2", "User 3", "User 4", "User 5"]))
+     |> assign(:leaderboard, Enum.with_index(leaderboard))
      |> stream(:rooms, rooms), temporary_assigns: [form: nil]}
   end
 
