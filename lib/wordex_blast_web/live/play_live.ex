@@ -18,7 +18,7 @@ defmodule WordexBlastWeb.PlayLive do
             </div>
             <div :if={@room.status == "running"} class="bomb bomb_hint">
               <div class="timer" />
-              <span class="text-black z-10 text-2xl font-bold" style="text-transform:uppercase;">
+              <span class="text-black z-10 text-2xl font-medium" style="text-transform:uppercase;">
                 <%= @room.hint %>
               </span>
               <img alt="Bomb" src="/images/bomb.svg" width="400" />
@@ -53,7 +53,7 @@ defmodule WordexBlastWeb.PlayLive do
             placeholder={get_placeholder(@current_player_selected, @room.selected_player)}
             class={
               class_join([
-                {true, "!mt-0 font-bold border-none bg-white bg-opacity-5"},
+                {true, "!mt-0 font-medium border-none bg-white bg-opacity-5"},
                 {!@current_player_selected, "cursor-not-allowed"}
               ])
             }
@@ -68,7 +68,7 @@ defmodule WordexBlastWeb.PlayLive do
       <.words />
     </div>
     <.modal :if={!@current_player} id="setup-user" class="max-w-xl" show keep_open>
-      <h1 class="font-bold text-xl mb-4">Welcome to Wordex Blast!</h1>
+      <h1 class="font-medium text-xl mb-4">Welcome to Wordex Blast!</h1>
       <p>To start playing, let's setup your account.</p>
       <div class="w-full">
         <.simple_form for={@user_form} id="user_form" phx-change="set_username" phx-submit="set_user">
@@ -79,7 +79,7 @@ defmodule WordexBlastWeb.PlayLive do
             autocomplete="off"
             field={@user_form[:username]}
             placeholder="My awesome nickname"
-            class="font-bold text-center"
+            class="font-medium text-center"
             container_class="mt-0"
           />
           <:actions>
@@ -105,7 +105,7 @@ defmodule WordexBlastWeb.PlayLive do
     ~H"""
     <div
       class={[
-        "w-28 h-28 rounded-full text-black flex items-center justify-center font-bold play",
+        "w-28 h-28 rounded-full text-black flex items-center justify-center font-medium play",
         !@is_playing && "opacity-30",
         @is_selected && "text-white"
       ]}
@@ -136,7 +136,7 @@ defmodule WordexBlastWeb.PlayLive do
   def scoreboard(assigns) do
     ~H"""
     <ul class="m-auto">
-      <h2 class="text-white font-bold">Scoreboard</h2>
+      <h2 class="text-white font-medium">Scoreboard</h2>
       <li class="bg-slate-50 rounded-2xl bg-opacity-5 p-4 px-6 flex justify-between items-center mt-3 w-[250px]">
         <div class="flex items-center">
           <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 -mt-[2px] mr-3" />
@@ -156,7 +156,7 @@ defmodule WordexBlastWeb.PlayLive do
   def words(assigns) do
     ~H"""
     <ul class="m-auto">
-      <h2 class="text-white font-bold text-right">Used words</h2>
+      <h2 class="text-white font-medium text-right">Used words</h2>
       <li class="bg-slate-50 rounded-2xl bg-opacity-5 p-4 px-6 flex justify-between items-center mt-3 w-[250px]">
         <span style="text-transform:uppercase;">test</span>
       </li>

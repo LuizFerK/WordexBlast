@@ -10,7 +10,7 @@ defmodule WordexBlastWeb.Accounts.UserLoginLive do
           Don't have an account?
           <.link
             navigate={~p"/users/register"}
-            class="font-semibold text-white font-bold hover:underline"
+            class="font-medium text-white font-medium hover:underline"
           >
             Sign up
           </.link>
@@ -24,7 +24,7 @@ defmodule WordexBlastWeb.Accounts.UserLoginLive do
 
         <:actions>
           <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
-          <.link navigate={~p"/users/reset_password"} class="text-sm font-semibold">
+          <.link navigate={~p"/users/reset_password"} class="text-sm font-medium">
             Forgot your password?
           </.link>
         </:actions>

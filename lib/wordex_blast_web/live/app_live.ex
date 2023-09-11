@@ -17,12 +17,12 @@ defmodule WordexBlastWeb.AppLive do
         <header class="border-dashed border-2 border-slate-50 rounded-3xl p-4 border-opacity-5">
           <div class="flex gap-2">
             <button
-              class="text-center cursor-pointer bg-white bg-opacity-5 drop-shadow-lg rounded-xl py-2 flex-1 font-bold text-lg hover:bg-white hover:text-black"
+              class="text-center cursor-pointer bg-white bg-opacity-5 drop-shadow-lg rounded-xl py-2 flex-1 font-medium text-lg hover:bg-white hover:text-black"
               phx-click="create_room"
             >
               Create room
             </button>
-            <span class="text-center bg-white drop-shadow-lg rounded-xl py-2 flex-1 font-bold text-lg text-black cursor-default">
+            <span class="text-center bg-white drop-shadow-lg rounded-xl py-2 flex-1 font-medium text-lg text-black cursor-default">
               Play
             </span>
           </div>
@@ -34,7 +34,7 @@ defmodule WordexBlastWeb.AppLive do
                 autocomplete="off"
                 field={@form[:room_id]}
                 placeholder="ROOM CODE"
-                class="!mt-0 !border-opacity-5 font-bold"
+                class="!mt-0 !border-opacity-5 font-medium"
                 container_class="flex-1"
               />
               <.button class="bg-white">
@@ -44,7 +44,7 @@ defmodule WordexBlastWeb.AppLive do
           </div>
         </header>
         <section>
-          <h1 class="mt-8 font-bold text-xl mb-2">Available rooms</h1>
+          <h1 class="mt-8 font-medium text-xl mb-2">Available rooms</h1>
           <div :if={@n_rooms == 0} class="flex flex-col items-center">
             <img alt="Space and planets" src="/images/empty.svg" width="200" class="mx-auto" />
             <strong class="text-2xl">Oops...</strong>
@@ -58,10 +58,10 @@ defmodule WordexBlastWeb.AppLive do
               :for={{room_id, room} <- @streams.rooms}
               id={room_id}
               navigate={~p"/play/#{room.id}"}
-              class="bg-slate-50 bg-opacity-5 rounded-3xl p-3 py-6 text-center flex flex-col items-center font-bold"
+              class="bg-slate-50 bg-opacity-5 rounded-3xl p-3 py-6 text-center flex flex-col items-center font-medium"
             >
               <span>🇧🇷</span>
-              <span class="mb-4 mt-3 font-bold text-3xl"><%= room.id %></span>
+              <span class="mb-4 mt-3 font-medium text-3xl"><%= room.id %></span>
               <div class="flex items-center">
                 <img alt="Player 1 avatar" src="/images/avatar_1.png" class="w-7 h-8 z-20 -mt-1" />
                 <img
@@ -86,13 +86,13 @@ defmodule WordexBlastWeb.AppLive do
               </span>
               <.link
                 navigate={~p"/users/log_in"}
-                class="my-4 p-3 rounded-xl w-full bg-slate-50 text-black font-bold text-sm"
+                class="my-4 p-3 rounded-xl w-full bg-slate-50 text-black font-medium text-sm"
               >
                 Login
               </.link>
               <span>
                 Don't have an account?
-                <.link navigate={~p"/users/register"} class="font-bold">SignUp</.link>
+                <.link navigate={~p"/users/register"} class="font-medium">SignUp</.link>
               </span>
             </div>
             <div :if={@current_user} class="flex flex-col items-center text-sm py-3">
@@ -100,7 +100,7 @@ defmodule WordexBlastWeb.AppLive do
                 Welcome back!
               </span>
               <img alt="Player avatar" src="/images/avatar_1.png" class="w-20 my-4" />
-              <span class="font-bold text-lg">
+              <span class="font-medium text-lg">
                 <%= @current_user.nickname %>
               </span>
               <div class="flex items-center gap-2 mt-4">
@@ -111,7 +111,7 @@ defmodule WordexBlastWeb.AppLive do
           </div>
         </section>
         <section class="mt-6">
-          <h2 class="font-bold">Leaderboard</h2>
+          <h2 class="font-medium">Leaderboard</h2>
           <ul>
             <li
               :for={{user, idx} <- @leaderboard}

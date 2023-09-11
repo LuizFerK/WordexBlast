@@ -5,7 +5,7 @@
   <%= if assigns[:room_id], do: "Room: #{assigns[:room_id]}" %>
   <ul class="flex gap-4">
     <%= if @current_user do %>
-      <li class="text-sm leading-6 mr-4 font-bold flex align-center">
+      <li class="text-sm leading-6 mr-4 font-medium flex items-center">
         <img alt="Player avatar" src="/images/avatar_1.png" class="w-6 mr-3 -mt-1" />
         <span><%= @current_user.nickname %></span>
       </li>
@@ -24,7 +24,7 @@
       <li>
         <.link
           navigate={~p"/users/settings"}
-          class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
+          class="text-[0.8125rem] leading-6 font-medium hover:text-slate-700"
         >
           <.icon name="hero-cog-8-tooth" class="h-[22px] w-[22px]" />
         </.link>
@@ -33,7 +33,7 @@
         <.link
           href={~p"/users/log_out"}
           method="delete"
-          class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
+          class="text-[0.8125rem] leading-6 font-medium hover:text-slate-700"
         >
           <.icon name="hero-arrow-left-on-rectangle" class="h-[22px] w-[22px]" />
         </.link>
@@ -54,7 +54,7 @@
       <li>
         <.link
           navigate={~p"/users/log_in"}
-          class="text-[0.8125rem] leading-6 font-semibold hover:text-slate-700"
+          class="text-[0.8125rem] leading-6 font-medium hover:text-slate-700"
         >
           Log in
         </.link>
@@ -62,7 +62,7 @@
       <li>
         <.link
           navigate={~p"/users/register"}
-          class="text-[0.8125rem] leading-6 font-semibold bg-white text-black p-2 rounded-xl px-4"
+          class="text-[0.8125rem] leading-6 font-medium bg-white text-black p-2 rounded-xl px-4"
         >
           Register
         </.link>

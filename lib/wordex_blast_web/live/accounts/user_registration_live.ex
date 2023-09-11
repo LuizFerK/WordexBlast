@@ -13,7 +13,7 @@ defmodule WordexBlastWeb.Accounts.UserRegistrationLive do
           Already registered?
           <.link
             navigate={~p"/users/log_in"}
-            class="font-semibold text-white font-bold hover:underline"
+            class="font-medium text-white font-medium hover:underline"
           >
             Sign in
           </.link>

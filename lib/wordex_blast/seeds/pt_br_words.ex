@@ -7340,7 +7340,7 @@ defmodule WordexBlast.Seeds.PtBrWords do
         "bolariam", "bolariamos", "bolarias", "bolarieis", "bolarmo", "bolarmos",
         "bolas", "bolasse", "bolasseis", "bolassem", "bolassemos", "bolasses",
         "bolaste", "bolastes", "bolava", "bolavam", "bolavamos", "bolavas", "bolaveis",
-        "bolchevismo", "bolchevista", "bolchevistas", "boldo", "bole", "bolei",
+        "bolchevismo", "bolchevista", "bolchevistas", "mediumo", "bole", "bolei",
         "boleis", "bolem", "bolemo", "bolemos", "bolero", "boles", "boletim",
         "boletins", "boleto", "boletos", "bolha", "bolhas", "bolide", "bolides",
         "bolido", "bolidos", "bolinha", "bolinhas", "bolinho", "bolinhos", "bolivia",

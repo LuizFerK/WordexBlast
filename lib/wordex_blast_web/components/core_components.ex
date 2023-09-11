@@ -124,7 +124,7 @@ defmodule WordexBlastWeb.CoreComponents do
       class="fixed top-8 right-8 w-80 sm:w-96 z-50 rounded-xl p-3 mt-20 bg-white bg-opacity-5 text-white"
       {@rest}
     >
-      <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
+      <p :if={@title} class="flex items-center gap-1.5 text-sm font-medium leading-6">
         <.icon
           :if={@kind == :info}
           name="hero-information-circle-mini mb-[2px]"
@@ -280,7 +280,7 @@ defmodule WordexBlastWeb.CoreComponents do
       type={@type}
       class={[
         "phx-submit-loading:opacity-75 rounded-xl bg-slate-50 py-2 px-3",
-        "text-sm font-semibold leading-6 text-black active:text-black/80 flex align-center justify-center",
+        "text-sm font-medium leading-6 text-black active:text-black/80 flex items-center justify-center",
         @disabled && "opacity-20 cursor-not-allowed",
         !@disabled && "hover:bg-slate-300",
         @class
@@ -452,7 +452,7 @@ defmodule WordexBlastWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 text-slate-50">
+    <label for={@for} class="block text-sm font-medium leading-6 text-slate-50">
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -485,7 +485,7 @@ defmodule WordexBlastWeb.CoreComponents do
     ~H"""
     <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
       <div>
-        <h1 class="text-lg font-semibold leading-8 text-slate-50">
+        <h1 class="text-lg font-medium leading-8 text-slate-50">
           <%= render_slot(@inner_block) %>
         </h1>
         <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-slate-300">
@@ -551,7 +551,7 @@ defmodule WordexBlastWeb.CoreComponents do
             >
               <div class="block py-4 pr-6">
                 <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-slate-50 sm:rounded-l-xl" />
-                <span class={["relative", i == 0 && "font-semibold text-slate-900"]}>
+                <span class={["relative", i == 0 && "font-medium text-slate-900"]}>
                   <%= render_slot(col, @row_item.(row)) %>
                 </span>
               </div>
@@ -561,7 +561,7 @@ defmodule WordexBlastWeb.CoreComponents do
                 <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-slate-50 sm:rounded-r-xl" />
                 <span
                   :for={action <- @action}
-                  class="relative ml-4 font-semibold leading-6 text-slate-900 hover:text-slate-700"
+                  class="relative ml-4 font-medium leading-6 text-slate-900 hover:text-slate-700"
                 >
                   <%= render_slot(action, @row_item.(row)) %>
                 </span>
@@ -616,7 +616,7 @@ defmodule WordexBlastWeb.CoreComponents do
     <div class="mt-16">
       <.link
         navigate={@navigate}
-        class="text-sm font-semibold leading-6 text-slate-900 hover:text-slate-700"
+        class="text-sm font-medium leading-6 text-slate-900 hover:text-slate-700"
       >
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
         <%= render_slot(@inner_block) %>
